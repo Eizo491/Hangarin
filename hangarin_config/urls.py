@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path, include # Added include
+from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
@@ -18,15 +18,13 @@ urlpatterns = [
     path('task/<int:pk>/edit/', task_views.TaskUpdateView.as_view(), name='task_update'),
     path('task/<int:pk>/delete/', task_views.TaskDeleteView.as_view(), name='task_delete'),
 
-    # --- AllAuth System (Socials & Standard Auth) ---
-    # This single line handles Login, Logout, Signup, and Social Callbacks
-    path('accounts/', include('allauth.urls')),
-    
-    # Keeping your custom signup view if you prefer it over the default allauth one
+    # Standard Django Auth System
+    path('login/', auth_views.LoginView.as_view(template_name='account/login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('signup/', task_views.signup, name='signup'),
 ]
 
-# Serving static and media files during development
+# Serving static and media files
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

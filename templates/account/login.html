@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
-{% load socialaccount %} {% block content %}
+
+{% block content %}
 <main class="main-content main-content-full login-container">
     <div class="auth-container-static">
         <div class="text-center mb-5">
@@ -24,23 +25,6 @@
             <button type="submit" class="btn btn-white-solid w-100 rounded-pill fw-bold py-3 mb-4 shadow-lg" style="letter-spacing: 1px;">
                 LOG IN TO DASHBOARD
             </button>
-
-            <div class="position-relative my-4">
-                <hr class="border-white border-opacity-25">
-                <span class="position-absolute top-50 start-50 translate-middle bg-dark px-3 text-white-50 small">OR CONTINUE WITH</span>
-            </div>
-
-            <div class="d-grid gap-2 mb-4">
-                <a href="{% provider_login_url 'google' %}" class="btn btn-outline-light rounded-pill py-2 d-flex align-items-center justify-content-center gap-2 border-opacity-25">
-                    <i class="fab fa-google"></i>
-                    <span class="small fw-bold">Google</span>
-                </a>
-
-                <a href="{% provider_login_url 'github' %}" class="btn btn-outline-light rounded-pill py-2 d-flex align-items-center justify-content-center gap-2 border-opacity-25">
-                    <i class="fab fa-github"></i>
-                    <span class="small fw-bold">GitHub</span>
-                </a>
-            </div>
 
             <div class="text-center">
                 <p class="text-white-50 small mb-0">
