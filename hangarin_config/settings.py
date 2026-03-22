@@ -7,7 +7,7 @@ SECRET_KEY = 'django-insecure-t&&__nm8x_jsl8!ck9@+-1e!)_i#+5vn)-lx%p(mch$@fww4py
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['hangarin.pythonanywhere.com', '127.0.0.1']
+ALLOWED_HOSTS = ['eizo.pythonanywhere.com', '127.0.0.1', 'localhost']
 
 INSTALLED_APPS = [
     'jazzmin',
