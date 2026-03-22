@@ -1,0 +1,15 @@
+{% extends 'tasks/base.html' %}
+
+{% block content %}
+<div class="container animate-view">
+    <div class="card border-0 shadow-sm rounded-4 p-5 text-center">
+        <h2 class="fw-bold text-danger mb-4">Are you sure?</h2>
+        <p class="lead">You are about to delete <strong>"{{ object.title }}"</strong>. This action cannot be undone.</p>
+        <form method="post" class="mt-4">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger rounded-pill px-5">Confirm Delete</button>
+            <a href="{% url 'task_detail' object.pk %}" class="btn btn-light rounded-pill px-5">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

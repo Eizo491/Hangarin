@@ -1,0 +1,36 @@
+{% extends 'tasks/base.html' %}
+
+{% block content %}
+<div class="container animate-view">
+    <div class="card border-0 shadow-sm rounded-4 p-5">
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <span class="badge-priority-tag mb-2 d-inline-block">{{ task.category }}</span>
+                <h1 class="fw-bold">{{ task.title }}</h1>
+            </div>
+            <span class="badge rounded-pill bg-light text-dark p-2 px-3 border">{{ task.status }}</span>
+        </div>
+        
+        <hr class="opacity-10 my-4">
+        
+        <h5 class="fw-semibold text-muted">Description</h5>
+        <p class="lead">{{ task.description|linebreaks }}</p>
+        
+        <div class="row mt-5 pt-4 border-top">
+            <div class="col-md-4">
+                <small class="text-muted d-block">Priority Level</small>
+                <span class="fw-bold">{{ task.priority }}</span>
+            </div>
+            <div class="col-md-4">
+                <small class="text-muted d-block">Created On</small>
+                <span class="fw-bold">{{ task.created_at|date:"F d, Y" }}</span>
+            </div>
+        </div>
+<div class="mt-5">
+    <a href="{% url 'task_list' %}" class="btn btn-light rounded-pill px-4">Back</a>
+    <a href="{% url 'task_update' task.pk %}" class="btn btn-primary rounded-pill px-4">Edit Task</a>
+    <a href="{% url 'task_delete' task.pk %}" class="btn btn-outline-danger rounded-pill px-4 ms-2">Delete</a>
+</div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangarin | Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'tasks/css/style.css' %}">
+</head>
+<body>
+
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            
+            {% if request.resolver_match.url_name != 'login' %}
+            <aside class="col-lg-2 d-none d-lg-block">
+                <div class="sidebar animate-view d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="sidebar-brand px-4 mb-4">
+                            <h3 class="fw-bold m-0">HANGARIN</h3>
+                        </div>
+
+                        <p class="sidebar-heading px-4">Menu</p>
+                        <a href="{% url 'task_list' %}" class="sidebar-link {% if not request.GET.status and request.resolver_match.url_name == 'task_list' %}active{% endif %}">
+                            Dashboard
+                        </a>
+                        <a href="/admin" class="sidebar-link">Admin Panel</a>
+                        
+                       <p class="sidebar-heading px-4">Categories</p>
+                            <a href="?category=Work" class="sidebar-link {% if request.GET.category == 'Work' %}active{% endif %}">Work</a>
+                            <a href="?category=School" class="sidebar-link {% if request.GET.category == 'School' %}active{% endif %}">School</a>
+                            <a href="?category=Projects" class="sidebar-link {% if request.GET.category == 'Projects' %}active{% endif %}">Projects</a>
+                            <a href="?category=Personal" class="sidebar-link {% if request.GET.category == 'Personal' %}active{% endif %}">Personal</a>
+                        <p class="sidebar-heading px-4">Actions</p>
+                        <div class="px-4 mb-2">
+                            <a href="{% url 'task_create' %}" class="btn btn-primary w-100 rounded-pill shadow-sm">+ New Task</a>
+                        </div>
+                        <div class="px-4">
+                            <a href="{% url 'export_tasks' %}" class="btn btn-outline-secondary w-100 rounded-pill btn-sm">Export Data</a>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-footer px-4 mb-4">
+                        <hr class="opacity-10">
+                        
+                        {% if user.is_authenticated %}
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="user-info">
+                                    <p class="small fw-bold m-0">{{ user.username }}</p>
+                                    <span class="text-muted ultra-small">Active Now</span>
+                                </div>
+                                <form action="{% url 'logout' %}" method="post" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-link p-0 text-danger text-decoration-none small fw-bold">Logout</button>
+                                </form>
+                            </div>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-dark w-100 rounded-pill btn-sm">Login</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </aside>
+            {% endif %}
+
+            <main class="{% if request.resolver_match.url_name == 'login' %}col-12{% else %}col-lg-10{% endif %} main-content">
+                <div class="content-wrapper">
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
