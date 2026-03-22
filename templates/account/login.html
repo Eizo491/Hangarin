@@ -1,37 +1,56 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+{% load socialaccount %} {% block content %}
+<main class="main-content main-content-full login-container">
+    <div class="auth-container-static">
+        <div class="text-center mb-5">
+            <h1 class="fw-bold text-white mb-2" style="letter-spacing: -1.5px; font-size: 2.5rem;">Hangarin</h1>
+            <p class="text-white-50">Focus on what matters most.</p>
+        </div>
 
-{% block content %}
-<div class="text-center animate-view">
-    <div class="mb-5">
-        <h1 class="fw-bold text-white mb-2" style="letter-spacing: -1px;">Hangarin</h1>
-        <h4 class="text-white opacity-75 fw-light mb-1">Welcome Back</h4>
-        <p class="text-white-50 small">Log in to manage your tasks</p>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <div class="mb-3 text-start">
+                <label class="form-label text-white-50 ultra-small fw-bold mb-2 d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Username</label>
+                {% render_field form.username class="form-control-dark w-100" placeholder="Enter your username" %}
+            </div>
+
+            <div class="mb-4 text-start">
+                <label class="form-label text-white-50 ultra-small fw-bold mb-2 d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Password</label>
+                {% render_field form.password class="form-control-dark w-100" placeholder="••••••••" %}
+            </div>
+
+            <button type="submit" class="btn btn-white-solid w-100 rounded-pill fw-bold py-3 mb-4 shadow-lg" style="letter-spacing: 1px;">
+                LOG IN TO DASHBOARD
+            </button>
+
+            <div class="position-relative my-4">
+                <hr class="border-white border-opacity-25">
+                <span class="position-absolute top-50 start-50 translate-middle bg-dark px-3 text-white-50 small">OR CONTINUE WITH</span>
+            </div>
+
+            <div class="d-grid gap-2 mb-4">
+                <a href="{% provider_login_url 'google' %}" class="btn btn-outline-light rounded-pill py-2 d-flex align-items-center justify-content-center gap-2 border-opacity-25">
+                    <i class="fab fa-google"></i>
+                    <span class="small fw-bold">Google</span>
+                </a>
+
+                <a href="{% provider_login_url 'github' %}" class="btn btn-outline-light rounded-pill py-2 d-flex align-items-center justify-content-center gap-2 border-opacity-25">
+                    <i class="fab fa-github"></i>
+                    <span class="small fw-bold">GitHub</span>
+                </a>
+            </div>
+
+            <div class="text-center">
+                <p class="text-white-50 small mb-0">
+                    Don't have an account? 
+                    <a href="{% url 'signup' %}" class="text-white fw-bold text-decoration-none border-bottom border-white border-opacity-25 ms-1">
+                        Create Account
+                    </a>
+                </p>
+            </div>
+        </form>
     </div>
-
-    <form method="post" novalidate>
-        {% csrf_token %}
-        
-        <div class="mb-3 text-start">
-            <label class="form-label text-white ultra-small fw-bold px-3 opacity-75">Username</label>
-            {% render_field form.username class="form-control px-4 py-2 border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.9);" placeholder="Enter username" %}
-        </div>
-
-        <div class="mb-4 text-start">
-            <label class="form-label text-white ultra-small fw-bold px-3 opacity-75">Password</label>
-            {% render_field form.password class="form-control px-4 py-2 border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.9);" placeholder="••••••••" %}
-        </div>
-
-        <button type="submit" class="btn btn-light w-100 rounded-pill fw-bold py-2 mb-3 shadow text-primary" style="letter-spacing: 1px;">
-            SIGN IN
-        </button>
-
-        <div class="mt-3">
-            <p class="text-white-50 small">
-                Don't have an account? 
-                <a href="{% url 'signup' %}" class="text-white fw-bold text-decoration-none border-bottom border-white border-opacity-25 ms-1">Create Account</a>
-            </p>
-        </div>
-    </form>
-</div>
+</main>
 {% endblock %}

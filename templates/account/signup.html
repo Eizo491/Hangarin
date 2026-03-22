@@ -2,33 +2,51 @@
 {% load widget_tweaks %}
 
 {% block content %}
-<div class="text-center animate-view">
-    <div class="mb-4">
-        <h2 class="fw-bold text-white">Hangarin</h2>
-        <p class="text-white-50">Create an account to start organizing</p>
-    </div>
+<main class="main-content main-content-full login-container">
+    <div class="auth-container-static">
+        <div class="text-center mb-5">
+            <h1 class="fw-bold text-white mb-2" style="letter-spacing: -1.5px; font-size: 2.5rem;">Hangarin</h1>
+            <p class="text-white-50">Create an account to start organizing</p>
+        </div>
 
-    <form method="post" novalidate>
-        {% csrf_token %}
+        <form method="post" novalidate>
+            {% csrf_token %}
 
-        {% for field in form %}
-            <div class="mb-3 text-start">
-                <label class="form-label text-white ultra-small fw-bold px-3">{{ field.label }}</label>
-                {% render_field field class="form-control px-4 py-2" placeholder=field.label %}
-                {% if field.errors %}
-                    <div class="text-warning ultra-small px-3 mt-1">{{ field.errors|striptags }}</div>
-                {% endif %}
+            {% for field in form %}
+                <div class="mb-3 text-start">
+                    <label class="form-label text-white-50 ultra-small fw-bold mb-2 d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">
+                        {{ field.label }}
+                    </label>
+                    
+                    {% render_field field class="form-control-dark w-100" placeholder=field.label %}
+                    
+                    {% if field.errors %}
+                        <div class="text-warning ultra-small px-2 mt-2" style="font-size: 0.75rem;">
+                            <i class="fas fa-exclamation-circle me-1"></i> {{ field.errors|striptags }}
+                        </div>
+                    {% endif %}
+                    
+                    {% if field.help_text %}
+                        <div class="text-white-50 mt-1 px-2" style="font-size: 0.65rem; line-height: 1.2;">
+                            {{ field.help_text|safe }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-white-solid w-100 rounded-pill fw-bold py-3 mt-3 mb-4 shadow-lg" style="letter-spacing: 1px;">
+                CREATE ACCOUNT
+            </button>
+
+            <div class="text-center">
+                <p class="text-white-50 small mb-0">
+                    Already a member? 
+                    <a href="{% url 'login' %}" class="text-white fw-bold text-decoration-none border-bottom border-white border-opacity-25 ms-1">
+                        Login here
+                    </a>
+                </p>
             </div>
-        {% endfor %}
-
-        <button type="submit" class="btn btn-light w-100 rounded-pill fw-bold py-2 mt-2 mb-3 shadow text-primary">
-            Get Started
-        </button>
-
-        <p class="text-white-50 small">
-            Already a member? 
-            <a href="{% url 'login' %}" class="text-white fw-bold text-decoration-none border-bottom">Login here</a>
-        </p>
-    </form>
-</div>
+        </form>
+    </div>
+</main>
 {% endblock %}

@@ -5,15 +5,15 @@
     --bg-light: #f1f3f9;
     --sidebar-width: 280px;
     --primary-gradient: linear-gradient(135deg, #6f42c1 0%, #432b7a 100%);
-    
-    /* Glassmorphism Variables */
     --glass-bg: rgba(255, 255, 255, 0.45);
     --glass-border: rgba(255, 255, 255, 0.3);
     --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
     
-    /* Auth-Specific Glass */
-    --auth-glass-bg: rgba(255, 255, 255, 0.1);
-    --auth-glass-border: rgba(255, 255, 255, 0.2);
+    /* Category Colors */
+    --cat-school: #0dcaf0;
+    --cat-work: #6f42c1;
+    --cat-personal: #ffc107;
+    --cat-finance: #198754;
 }
 
 body {
@@ -24,9 +24,10 @@ body {
         radial-gradient(at 100% 100%, rgba(232, 62, 140, 0.05) 0px, transparent 50%);
     color: #333;
     overflow-x: hidden;
+    min-height: 100vh;
 }
 
-/* --- SIDEBAR --- */
+/* --- Sidebar & Layout --- */
 .sidebar {
     height: 100vh;
     background: var(--glass-bg);
@@ -34,127 +35,204 @@ body {
     -webkit-backdrop-filter: blur(12px);
     border-right: 1px solid var(--glass-border);
     position: fixed;
-    width: inherit;
+    width: var(--sidebar-width);
     padding-top: 2rem;
     z-index: 1000;
 }
 
 .sidebar-brand h3 {
     color: var(--primary-indigo);
-    letter-spacing: 2px;
-}
-
-.sidebar-heading {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    font-weight: 700;
-    color: #8a8d91;
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin: 0;
+    padding: 0 1.5rem 2rem;
 }
 
 .sidebar-link {
-    display: block;
+    display: flex;
+    align-items: center;
     padding: 0.8rem 1.5rem;
     color: #495057;
     text-decoration: none;
     font-weight: 500;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     border-left: 4px solid transparent;
 }
 
 .sidebar-link:hover {
-    background: rgba(111, 66, 193, 0.08);
+    background: rgba(111, 66, 193, 0.05);
     color: var(--primary-indigo);
+    padding-left: 2rem;
 }
 
 .sidebar-link.active {
-    background: rgba(111, 66, 193, 0.12);
+    background: rgba(111, 66, 193, 0.1);
     color: var(--primary-indigo);
     border-left-color: var(--primary-indigo);
     font-weight: 600;
 }
 
-/* --- AUTH & LOGIN LAYOUT --- */
-.login-container {
+.main-content {
+    margin-left: var(--sidebar-width);
+    padding: 2rem 3rem;
     min-height: 100vh;
+}
+
+/* Centering Fix for Auth Pages */
+.main-content-full {
+    margin-left: 0 !important;
+    padding: 0 !important; /* Removed padding that pushes content down */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* --- New Static Dark-Glass Login --- */
+.login-container {
+    height: 100vh; /* Changed from min-height to fixed height */
+    width: 100vw;
     display: flex;
     align-items: center;
     justify-content: center;
     background: var(--primary-gradient);
     background-attachment: fixed;
+    position: relative;
+    overflow: hidden;
+    padding: 20px; /* Safety padding for small screens */
 }
 
-.auth-container {
-    background: var(--auth-glass-bg) !important;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid var(--auth-glass-border) !important;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-    padding: 3rem;
-    border-radius: 2rem;
+.auth-container-static {
+    background: rgba(20, 20, 30, 0.45);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2.5rem; /* Reduced slightly from 3.5rem to save space */
+    border-radius: 2.5rem;
     width: 100%;
-    max-width: 450px;
+    max-width: 420px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    
+    /* Vertical scroll fix for long signup forms */
+    max-height: 95vh;
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
 }
 
-/* Auth-specific Form Control Adjustments */
-.auth-container .form-control {
-    background: rgba(255, 255, 255, 0.95);
-    border: none;
+.auth-container-static::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+.form-control-dark {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    border-radius: 12px !important;
+    padding: 10px 18px !important; /* Slimmed down slightly */
+}
+
+.form-control-dark::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-white-solid {
+    background: white;
     color: var(--dark-indigo);
+    border: none;
+    border-radius: 50px;
+    transition: all 0.2s ease;
 }
 
-.auth-container .form-control:focus {
-    background: #ffffff;
-    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
+.btn-white-solid:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    background: #f8f9fa;
 }
 
-/* --- DASHBOARD ELEMENTS --- */
-.main-content {
-    margin-left: auto;
-    padding: 2rem 3rem;
-    min-height: 100vh;
-}
-
+/* --- Task Card with Reflection Sweep --- */
 .task-card {
     border: 1px solid var(--glass-border);
-    border-radius: 1.25rem;
-    background: var(--glass-bg);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    border-radius: 1.5rem;
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     box-shadow: var(--glass-shadow);
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    padding: 1.75rem;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.task-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+    transform: skewX(-25deg);
+    transition: 0.75s;
+    z-index: 1;
+}
+
+.task-card:hover::after {
+    left: 150%;
 }
 
 .task-card:hover {
-    transform: translateY(-8px);
-    background: rgba(255, 255, 255, 0.6);
-    box-shadow: 0 15px 45px rgba(111, 66, 193, 0.15);
+    background: rgba(255, 255, 255, 0.6) !important;
+    box-shadow: 0 20px 40px rgba(111, 66, 193, 0.12);
+    transform: translateY(-5px) rotateX(2deg) rotateY(2deg);
 }
 
-.badge-priority-tag {
-    background: rgba(111, 66, 193, 0.1);
-    color: var(--primary-indigo);
+/* Badge & Priority Styling */
+.badge-category {
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
     font-size: 0.7rem;
     font-weight: 700;
-    padding: 0.4rem 0.8rem;
-    border-radius: 50px;
     text-transform: uppercase;
 }
 
-/* --- UTILITIES --- */
-.ultra-small {
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+.category-school { background: rgba(13, 202, 240, 0.15); color: var(--cat-school); }
+.category-work { background: rgba(111, 66, 193, 0.15); color: var(--cat-work); }
+.category-personal { background: rgba(255, 193, 7, 0.15); color: var(--cat-personal); }
+.category-finance { background: rgba(25, 135, 84, 0.15); color: var(--cat-finance); }
+
+.priority-critical { color: #dc3545; font-weight: 800; }
+.priority-high { color: #fd7e14; font-weight: 800; }
+.priority-medium { color: #0d6efd; font-weight: 800; }
+
+.task-meta {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.animate-view {
-    animation: fadeInUp 0.6s ease-out forwards;
+.glow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.4) 0%, transparent 80%);
+    top: 0; left: 0;
+    pointer-events: none;
     opacity: 0;
+    transition: opacity 0.3s;
 }
 
+.task-card:hover .glow { opacity: 1; }
+
+/* --- Staggered Fade-in Animation --- */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -166,29 +244,8 @@ body {
     }
 }
 
-.btn-primary {
-    background: var(--primary-gradient);
-    border: none;
-    padding: 0.6rem 1.5rem;
-    border-radius: 50px;
-    color: white;
-    transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-    transform: scale(1.03);
-    box-shadow: 0 8px 20px rgba(111, 66, 193, 0.3);
-    color: white;
-}
-
-.form-control {
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid var(--glass-border);
-    border-radius: 50px;
-}
-
-.form-control:focus {
-    background: white;
-    border-color: var(--primary-indigo);
-    box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.1);
+.reveal-card {
+    opacity: 0;
+    animation: fadeInUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    will-change: transform, opacity;
 }
