@@ -8,7 +8,7 @@
         <div class="d-flex justify-content-between align-items-start mb-4">
             <div class="text-start">
                 <span class="badge bg-primary-subtle text-primary border-0 px-3 py-2 rounded-pill mb-3 d-inline-block small fw-bold">
-                    {{ task.category|default:"General" }}
+                    <i class="fas fa-tag me-1 small"></i>{{ task.category.name|default:"General" }}
                 </span>
                 <h1 class="display-5 fw-bold text-dark">{{ task.title }}</h1>
             </div>
@@ -25,12 +25,43 @@
                 {{ task.description|linebreaks }}
             </div>
         </div>
+
+        {% if task.subtasks.all %}
+        <div class="mb-5 text-start">
+            <h5 class="fw-bold text-muted small text-uppercase mb-3">Sub-Tasks</h5>
+            <div class="list-group list-group-flush border rounded-4 overflow-hidden">
+                {% for sub in task.subtasks.all %}
+                <div class="list-group-item d-flex justify-content-between align-items-center p-3">
+                    <span>
+                        <i class="{% if sub.status == 'Completed' %}fas fa-check-circle text-success{% else %}far fa-circle text-muted{% endif %} me-2"></i>
+                        {{ sub.title }}
+                    </span>
+                    <small class="badge {% if sub.status == 'Completed' %}bg-success-subtle text-success{% else %}bg-light text-dark{% endif %} rounded-pill">
+                        {{ sub.status }}
+                    </small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if task.notes.all %}
+        <div class="mb-5 text-start">
+            <h5 class="fw-bold text-muted small text-uppercase mb-3">Notes & Reminders</h5>
+            {% for note in task.notes.all %}
+            <div class="p-3 bg-light rounded-4 mb-2 border-start border-primary border-4">
+                <p class="mb-1 text-dark">{{ note.content }}</p>
+                <small class="text-muted" style="font-size: 0.7rem;">Added on {{ note.created_at|date:"M d, Y" }}</small>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
         
         <div class="row g-4 mt-5 pt-4 border-top text-start">
             <div class="col-md-3">
                 <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.7rem;">Priority Level</small>
                 <span class="fw-bold {% if task.priority.name == 'Critical' or task.priority.name == 'High' %}text-danger{% else %}text-primary{% endif %}">
-                    <i class="fas fa-flag me-1"></i> {{ task.priority|default:"Medium" }}
+                    <i class="fas fa-flag me-1"></i> {{ task.priority.name|default:"Medium" }}
                 </span>
             </div>
             
