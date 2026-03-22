@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container animate-view py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card task-card p-4 p-md-5 border-0">
+                <div class="mb-4">
+                    <h2 class="fw-bold m-0 text-primary">
+                        {% if object %}Edit Task{% else %}Create New Task{% endif %}
+                    </h2>
+                    <p class="text-muted small">Fill in the details below to organize your workflow.</p>
+                </div>
+
+                <form method="post" novalidate>
+                    {% csrf_token %} <div class="row g-4">
+                        {% for field in form %}
+                            {# Make description take full width (12), others take half (6) #}
+                            <div class="{% if field.name == 'description' %}col-12{% else %}col-md-6{% endif %} text-start">
+                                <label class="form-label fw-bold ultra-small text-secondary px-2">
+                                    {{ field.label }}
+                                </label>
+                                
+                                {% if field.name == 'description' %}
+                                    {% render_field field class="form-control rounded-4 px-4 py-3" rows="3" placeholder="Enter specific details..." %}
+                                {% elif field.name == 'deadline' %}
+                                    {% render_field field class="form-control rounded-pill px-4" type="date" %}
+                                {% else %}
+                                    {% render_field field class="form-control rounded-pill px-4" placeholder=field.label %}
+                                {% endif %}
+
+                                {% if field.errors %}
+                                    <div class="text-danger ultra-small px-3 mt-1">
+                                        {{ field.errors|first }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mt-5 d-flex gap-3">
+                        <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold text-white shadow-sm">
+                            {% if object %}Update Task{% else %}Save Task{% endif %}
+                        </button>
+                        <a href="{% url 'task_list' %}" class="btn btn-light rounded-pill px-4 text-muted border-0 shadow-sm">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

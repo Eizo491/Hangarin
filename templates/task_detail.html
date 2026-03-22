@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container animate-view py-4">
+    <div class="card border-0 shadow-sm rounded-4 p-5 position-relative overflow-hidden">
+        <div class="position-absolute top-0 start-0 w-100" style="height: 6px; background: linear-gradient(90deg, #6610f2, #0d6efd);"></div>
+
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div class="text-start">
+                <span class="badge bg-primary-subtle text-primary border-0 px-3 py-2 rounded-pill mb-3 d-inline-block small fw-bold">
+                    {{ task.category|default:"General" }}
+                </span>
+                <h1 class="display-5 fw-bold text-dark">{{ task.title }}</h1>
+            </div>
+            <span class="badge rounded-pill {% if task.status == 'Completed' %}bg-success-subtle text-success{% elif task.status == 'In Progress' %}bg-info-subtle text-info{% else %}bg-secondary-subtle text-secondary{% endif %} p-2 px-3 border-0 shadow-sm">
+                {{ task.status }}
+            </span>
+        </div>
+        
+        <hr class="opacity-10 my-4">
+        
+        <div class="mb-5 text-start">
+            <h5 class="fw-bold text-muted small text-uppercase mb-3">Description</h5>
+            <div class="lead text-dark" style="font-size: 1.1rem; line-height: 1.6;">
+                {{ task.description|linebreaks }}
+            </div>
+        </div>
+        
+        <div class="row g-4 mt-5 pt-4 border-top text-start">
+            <div class="col-md-3">
+                <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.7rem;">Priority Level</small>
+                <span class="fw-bold {% if task.priority.name == 'Critical' or task.priority.name == 'High' %}text-danger{% else %}text-primary{% endif %}">
+                    <i class="fas fa-flag me-1"></i> {{ task.priority|default:"Medium" }}
+                </span>
+            </div>
+            
+            <div class="col-md-4">
+                <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.7rem;">Target Deadline</small>
+                <span class="fw-bold text-dark d-flex align-items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-check me-2 text-primary" viewBox="0 0 16 16">
+                        <path d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                        <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                    </svg>
+                    {{ task.deadline|date:"F d, Y"|default:"No deadline set" }}
+                </span>
+                {% if task.deadline %}
+                    <small class="d-block text-primary mt-1 fw-bold" style="font-size: 0.75rem;">
+                        <i class="fas fa-hourglass-half me-1"></i> {{ task.deadline|timeuntil }} remaining
+                    </small>
+                {% endif %}
+            </div>
+
+            <div class="col-md-3">
+                <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.7rem;">Created On</small>
+                <span class="text-muted"><i class="fas fa-clock me-1 small"></i> {{ task.created_at|date:"M d, Y" }}</span>
+            </div>
+        </div>
+
+        <div class="mt-5 pt-4 d-flex flex-wrap gap-2 justify-content-start">
+            <a href="{% url 'task_list' %}" class="btn btn-light rounded-pill px-4 border-0 shadow-sm">
+                <i class="fas fa-chevron-left me-2 small"></i>Back to Dashboard
+            </a>
+            <a href="{% url 'task_update' task.pk %}" class="btn btn-primary rounded-pill px-4 shadow">
+                <i class="fas fa-edit me-2 small"></i>Edit Task
+            </a>
+            <a href="{% url 'task_delete' task.pk %}" class="btn btn-outline-danger rounded-pill px-4 ms-lg-auto">
+                <i class="fas fa-trash-alt me-2 small"></i>Delete
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

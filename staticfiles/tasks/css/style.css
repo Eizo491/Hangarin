@@ -1,0 +1,150 @@
+/* Hangarin Project - Custom Styles 
+    Theme: Modern Indigo/Purple Gradient
+*/
+
+:root {
+    --primary-indigo: #6f42c1;
+    --dark-indigo: #432b7a;
+    --accent-pink: #e83e8c;
+    --bg-light: #f8f9fa;
+    --sidebar-width: 280px;
+    --primary-gradient: linear-gradient(135deg, #6f42c1 0%, #432b7a 100%);
+    --glass-white: rgba(255, 255, 255, 0.95);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-light);
+    color: #333;
+    overflow-x: hidden;
+}
+
+/* --- Sidebar Styling --- */
+.sidebar {
+    height: 100vh;
+    background: white;
+    border-right: 1px solid rgba(0,0,0,0.05);
+    position: fixed;
+    width: inherit;
+    padding-top: 2rem;
+    z-index: 1000;
+}
+
+.sidebar-brand h3 {
+    color: var(--primary-indigo);
+    letter-spacing: 2px;
+}
+
+.sidebar-heading {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #adb5bd;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-link {
+    display: block;
+    padding: 0.8rem 1.5rem;
+    color: #495057;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.sidebar-link:hover {
+    background: #f1f3f5;
+    color: var(--primary-indigo);
+}
+
+.sidebar-link.active {
+    background: #f3f0ff;
+    color: var(--primary-indigo);
+    border-left-color: var(--primary-indigo);
+    font-weight: 600;
+}
+
+/* --- Main Content Area --- */
+.main-content {
+    margin-left: auto;
+    padding: 2rem 3rem;
+    min-height: 100vh;
+}
+
+/* --- Task Cards --- */
+.task-card {
+    border: none;
+    border-radius: 1.25rem;
+    background: var(--glass-white);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    height: 100%;
+}
+
+.task-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(111, 66, 193, 0.1);
+}
+
+.badge-priority-tag {
+    background: #f3f0ff;
+    color: var(--primary-indigo);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.4rem 0.8rem;
+    border-radius: 50px;
+    text-transform: uppercase;
+}
+
+.ultra-small {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* --- Animations --- */
+.animate-view {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- Buttons & UI Elements --- */
+.btn-primary {
+    background: var(--primary-gradient);
+    border: none;
+    padding: 0.6rem 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 20px rgba(111, 66, 193, 0.3);
+    background: var(--primary-gradient);
+}
+
+.form-control:focus {
+    border-color: var(--primary-indigo);
+    box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.1);
+}
+
+/* --- Login Screen Specifics --- */
+.login-container {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-gradient);
+}

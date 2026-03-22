@@ -1,0 +1,74 @@
+:root {
+    --primary: #6f42c1;
+    --secondary: #5a32a3;
+    --accent: #e83e8c;
+    --header-gradient: linear-gradient(135deg, #6f42c1 0%, #432b7a 100%);
+    --dark-sidebar: #343a40;
+}
+
+@keyframes logo-pop {
+    0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+    70% { transform: scale(1.2) rotate(10deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.brand-link {
+    background-color: transparent !important;
+    border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+.brand-link .brand-image {
+    animation: logo-pop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.nav-sidebar .nav-item > .nav-link {
+    transition: all 0.3s ease !important;
+}
+
+.nav-sidebar .nav-item > .nav-link:hover {
+    background-color: rgba(111, 66, 193, 0.2) !important;
+    color: #fff !important;
+    transform: translateX(8px);
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    background-color: var(--primary) !important;
+}
+
+.main-header {
+    background: var(--header-gradient) !important;
+    border-bottom: 2px solid rgba(255,255,255,0.1) !important;
+}
+
+.main-header .nav-link {
+    color: #fff !important;
+}
+
+.btn-primary, .button, input[type=submit] {
+    background-color: var(--primary) !important;
+    border: none !important;
+    border-radius: 20px !important;
+    padding: 8px 20px !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn-primary:hover, .button:hover {
+    background-color: var(--accent) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(232, 62, 140, 0.3);
+}
+
+.card-primary.card-outline {
+    border-top: 3px solid var(--primary) !important;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    color: var(--secondary);
+}
+
+.main-sidebar {
+    background-color: var(--dark-sidebar) !important;
+}

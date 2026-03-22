@@ -1,0 +1,42 @@
+{% if is_paginated %}
+<nav aria-label="Task Navigation" class="mt-5 animate-view">
+    <ul class="pagination justify-content-center border-0 gap-2">
+        
+        {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link rounded-pill border-0 shadow-sm px-4 py-2 text-primary fw-bold" 
+                   href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+                    &larr; Prev
+                </a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link rounded-pill border-0 bg-light text-muted px-4 py-2">
+                    &larr; Prev
+                </span>
+            </li>
+        {% endif %}
+
+        <li class="page-item">
+            <span class="page-link rounded-pill border-0 bg-primary text-white px-4 py-2 shadow fw-bold">
+                {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+        </li>
+
+        {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link rounded-pill border-0 shadow-sm px-4 py-2 text-primary fw-bold" 
+                   href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+                    Next &rarr;
+                </a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link rounded-pill border-0 bg-light text-muted px-4 py-2">
+                    Next &rarr;
+                </span>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}

@@ -1,0 +1,31 @@
+{% load widget_tweaks %}
+
+{% for field in form %}
+<div class="mb-4">
+    <div class="form-floating shadow-sm rounded-4 overflow-hidden">
+        {% if field.errors %}
+            {{ field|add_class:"form-control border-0 bg-light px-4 is-invalid" }}
+        {% else %}
+            {{ field|add_class:"form-control border-0 bg-light px-4" }}
+        {% endif %}
+        
+        <label for="{{ field.id_for_label }}" class="text-muted px-4 small fw-bold text-uppercase">
+            {{ field.label }}
+        </label>
+    </div>
+
+    {% if field.errors %}
+        {% for error in field.errors %}
+            <div class="text-danger ultra-small mt-1 ms-3 fw-bold">
+                ⚠️ {{ error }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if field.help_text %}
+        <small class="form-text text-muted ultra-small ms-3 italic">
+            {{ field.help_text|safe }}
+        </small>
+    {% endif %}
+</div>
+{% endfor %}
