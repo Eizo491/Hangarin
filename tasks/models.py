@@ -51,3 +51,31 @@ class Task(BaseModel):
 
     def __str__(self):
         return self.title
+    
+    # Add this below your Task model
+
+class Note(BaseModel):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='notes') # [cite: 16]
+    content = models.TextField() # [cite: 20]
+
+    def __str__(self):
+        return f"Note for {self.task.title}"
+
+class SubTask(BaseModel):
+    # Requirement: parent_task relationship [cite: 32]
+    parent_task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='subtasks')
+    title = models.CharField(max_length=200) # [cite: 36]
+    
+    # Requirement: status choices for subtasks 
+    status = models.CharField(
+        max_length=50,
+        choices=Task.STATUS_CHOICES,
+        default="Pending"
+    )
+
+    class Meta:
+        verbose_name = "Sub Task"
+        verbose_name_plural = "Sub Tasks"
+
+    def __str__(self):
+        return self.title
