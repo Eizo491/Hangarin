@@ -9,7 +9,7 @@ SECRET_KEY = 'django-insecure-t&&__nm8x_jsl8!ck9@+-1e!)_i#+5vn)-lx%p(mch$@fww4py
 DEBUG = True
 
 # Update with your PythonAnywhere domain
-ALLOWED_HOSTS = ['eizo.pythonanywhere.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['eizo123.pythonanywhere.com', '127.0.0.1']
 
 INSTALLED_APPS = [
     'jazzmin',
