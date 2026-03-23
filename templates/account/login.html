@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
-
-{% block content %}
+{% load socialaccount %} {% block content %}
 <main class="main-content main-content-full login-container">
     <div class="auth-container-static">
         <div class="text-center mb-5">
@@ -25,6 +24,15 @@
             <button type="submit" class="btn btn-white-solid w-100 rounded-pill fw-bold py-3 mb-4 shadow-lg" style="letter-spacing: 1px;">
                 LOG IN TO DASHBOARD
             </button>
+
+            <div class="text-center mb-4">
+                <p class="text-white-50 small mb-3">OR CONTINUE WITH</p>
+                <div class="d-grid gap-2">
+                    <a href="{% provider_login_url 'google' %}" class="btn btn-outline-light rounded-pill fw-bold py-2">
+                        <i class="fab fa-google me-2"></i> Google
+                    </a>
+                </div>
+            </div>
 
             <div class="text-center">
                 <p class="text-white-50 small mb-0">

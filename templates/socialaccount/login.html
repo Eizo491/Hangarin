@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<main class="main-content main-content-full login-container">
+    <div class="auth-container-static text-center">
+        <div class="mb-5">
+            <h1 class="fw-bold text-white mb-2" style="letter-spacing: -1.5px; font-size: 2.5rem;">Confirm Sign In</h1>
+            <p class="text-white-50">You are about to sign in using your <strong>{{ provider.name }}</strong> account.</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-white-solid w-100 rounded-pill fw-bold py-3 mb-4 shadow-lg" style="letter-spacing: 1px;">
+                CONTINUE WITH {{ provider.name|upper }}
+            </button>
+        </form>
+
+        <div class="text-center">
+            <a href="{% url 'account_login' %}" class="text-white-50 small text-decoration-none border-bottom border-white border-opacity-25">
+                Cancel and go back
+            </a>
+        </div>
+    </div>
+</main>
+{% endblock %}

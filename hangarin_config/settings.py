@@ -1,4 +1,5 @@
 import os
+import socket  # Added for dynamic SITE_ID 
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -8,8 +9,8 @@ SECRET_KEY = 'django-insecure-t&&__nm8x_jsl8!ck9@+-1e!)_i#+5vn)-lx%p(mch$@fww4py
 # Set DEBUG to False when you are ready for final submission
 DEBUG = True
 
-# Update with your PythonAnywhere domain
-ALLOWED_HOSTS = ['eizo123.pythonanywhere.com', '127.0.0.1']
+# Update with your PythonAnywhere domain [cite: 382]
+ALLOWED_HOSTS = ['eizo123.pythonanywhere.com', '127.0.0.1', 'localhost']
 
 INSTALLED_APPS = [
     'jazzmin',
@@ -21,6 +22,26 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'widget_tweaks',
+    
+    # AllAuth Apps [cite: 25-30]
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.github',
+]
+
+# Dynamic SITE_ID configuration 
+if "pythonanywhere" in socket.gethostname():
+    SITE_ID = 2 # production site
+else:
+    SITE_ID = 1 # local site
+
+# Authentication Backends [cite: 32-35]
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 MIDDLEWARE = [
@@ -29,6 +50,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware', # Added AllAuth Middleware [cite: 43]
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -43,7 +65,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
-                'django.template.context_processors.request',
+                'django.template.context_processors.request', # Required by allauth [cite: 178]
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -60,10 +82,13 @@ DATABASES = {
     }
 }
 
-# --- Standard Auth Configuration ---
-LOGIN_URL = 'login'
+# --- AllAuth Configuration --- [cite: 48-54]
+LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = 'task_list'
-LOGOUT_REDIRECT_URL = 'login'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_LOGIN_METHODS = {"username", "email"}
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
