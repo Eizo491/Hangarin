@@ -23,7 +23,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'widget_tweaks',
     
-    # AllAuth Apps [cite: 25-30]
     'django.contrib.sites',
     'allauth',
     'allauth.account',
