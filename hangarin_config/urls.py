@@ -8,6 +8,7 @@ from tasks import views as task_views
 admin.site.site_header = "Hangarin Admin"
 
 urlpatterns = [
+    path('category/add/', task_views.category_create, name='category_create'),
     path('admin/', admin.site.urls),
     
 

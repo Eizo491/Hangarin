@@ -1,6 +1,6 @@
 import csv
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
@@ -10,7 +10,7 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
-from .models import Task
+from .models import Task, Category  # Added Category model here
 from .forms import TaskForm
 from django.contrib.messages.views import SuccessMessageMixin
 
@@ -38,42 +38,65 @@ def signup(request):
 def task_list(request):
     search_query = request.GET.get('search', '')
     category_filter = request.GET.get('category', '')
-    # Get the sort_by parameter, defaulting to newest created
+    priority_filter = request.GET.get('priority', '') # Added priority filter
     sort_by = request.GET.get('sort_by', '-created_at')
     
-    # Start with all tasks belonging to the user
-    tasks_query = Task.objects.select_related('category', 'priority').filter(user=request.user)
+    # Base query: user's tasks
+    tasks_query = Task.objects.select_related('category').filter(user=request.user)
     
-    # 1. Apply Category Filter (from Sidebar)
+    # 1. Apply Category Filter
     if category_filter:
         tasks_query = tasks_query.filter(category__name__iexact=category_filter)
 
-    # 2. Apply Search Filter (Logic from PDF 05)
+    # 2. Apply Priority Filter (New)
+    if priority_filter:
+        tasks_query = tasks_query.filter(priority=priority_filter)
+
+    # 3. Apply Search Filter
     if search_query:
         tasks_query = tasks_query.filter(
             Q(title__icontains=search_query) | 
             Q(description__icontains=search_query)
         )
     
-    # 3. Apply Dynamic Ordering with Safety Catch
-    # This prevents the app from crashing if 'sort_by' contains an invalid field
+    # 4. Apply Dynamic Ordering
     try:
         tasks_query = tasks_query.order_by(sort_by)
     except Exception:
         tasks_query = tasks_query.order_by('-created_at')
-        sort_by = '-created_at' # Reset variable for the template dropdown
+        sort_by = '-created_at'
     
-    # 4. Pagination (6 tasks per page)
+    # 5. Pagination
     paginator = Paginator(tasks_query, 6)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
+    # 6. Fetch all categories for the sidebar
+    # (Assuming Category model has a 'user' field, if not, remove the filter)
+    all_categories = Category.objects.all() 
 
     return render(request, 'task_list.html', {
         'tasks': page_obj, 
         'page_obj': page_obj, 
         'is_paginated': page_obj.has_other_pages(),
-        'current_sort': sort_by # Required to keep dropdown state in HTML
+        'current_sort': sort_by,
+        'categories': all_categories, # Passed to base.html sidebar
     })
+
+# --- CATEGORY CREATE VIEW (New) ---
+
+@login_required
+def category_create(request):
+    if request.method == "POST":
+        name = request.POST.get('name')
+        if name:
+            # Create the category. 
+            # If your Category model has a 'user' field, use: 
+            # Category.objects.get_or_create(name=name, user=request.user)
+            Category.objects.get_or_create(name=name)
+            messages.success(request, f"Category '{name}' added!")
+        return redirect('task_list')
+    return redirect('task_list')
 
 @login_required
 def export_tasks(request):
@@ -98,16 +121,20 @@ class TaskCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     success_message = "Task created successfully!"
     
     def form_valid(self, form):
-        # Automatically link the task to the logged-in user
         form.instance.user = self.request.user
         return super().form_valid(form)
+
+    # Add categories to context so they can be selected in the form
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        return context
 
 class TaskDetailView(LoginRequiredMixin, DetailView):
     model = Task
     template_name = 'task_detail.html'
     
     def get_queryset(self):
-        # Security: Users can only view their own task details
         return self.model.objects.filter(user=self.request.user)
 
 class TaskUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
@@ -118,7 +145,6 @@ class TaskUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     success_message = "Task updated successfully!"
 
     def get_queryset(self):
-        # Security: Users can only edit their own tasks
         return self.model.objects.filter(user=self.request.user)
 
 class TaskDeleteView(LoginRequiredMixin, DeleteView):
@@ -127,10 +153,8 @@ class TaskDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('task_list')
     
     def post(self, request, *args, **kwargs):
-        # Add a custom warning message upon deletion
         messages.warning(self.request, "Task deleted.")
         return super().post(request, *args, **kwargs)
 
     def get_queryset(self):
-        # Security: Users can only delete their own tasks
         return self.model.objects.filter(user=self.request.user)
