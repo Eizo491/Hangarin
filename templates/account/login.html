@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
-{% load socialaccount %} {% block content %}
+{% load socialaccount %} 
+
+{% block content %}
 <main class="main-content main-content-full login-container">
     <div class="auth-container-static">
         <div class="text-center mb-5">
@@ -10,16 +12,38 @@
 
         <form method="post" novalidate>
             {% csrf_token %}
+
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            {% endif %}
             
             <div class="mb-3 text-start">
-                <label class="form-label text-white-50 ultra-small fw-bold mb-2 d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Username</label>
-                {% render_field form.username class="form-control-dark w-100" placeholder="Enter your username" %}
+                <label class="form-label text-white-50 ultra-small fw-bold mb-2 d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">
+                    Username or Email
+                </label>
+                {% render_field form.login class="form-control-dark w-100" placeholder="Enter username or email" %}
+                
+                {% if form.login.errors %}
+                <div class="text-danger small mt-1">{{ form.login.errors }}</div>
+                {% endif %}
             </div>
 
             <div class="mb-4 text-start">
-                <label class="form-label text-white-50 ultra-small fw-bold mb-2 d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Password</label>
+                <label class="form-label text-white-50 ultra-small fw-bold mb-2 d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">
+                    Password
+                </label>
                 {% render_field form.password class="form-control-dark w-100" placeholder="••••••••" %}
+                
+                {% if form.password.errors %}
+                <div class="text-danger small mt-1">{{ form.password.errors }}</div>
+                {% endif %}
             </div>
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger bg-danger text-white border-0 small mb-4 py-2">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
 
             <button type="submit" class="btn btn-white-solid w-100 rounded-pill fw-bold py-3 mb-4 shadow-lg" style="letter-spacing: 1px;">
                 LOG IN TO DASHBOARD
@@ -37,7 +61,7 @@
             <div class="text-center">
                 <p class="text-white-50 small mb-0">
                     Don't have an account? 
-                    <a href="{% url 'signup' %}" class="text-white fw-bold text-decoration-none border-bottom border-white border-opacity-25 ms-1">
+                    <a href="{% url 'account_signup' %}" class="text-white fw-bold text-decoration-none border-bottom border-white border-opacity-25 ms-1">
                         Create Account
                     </a>
                 </p>
