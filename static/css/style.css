@@ -220,6 +220,8 @@ body {
     }
 }
 
+/* --- AUTH / LOGIN SECTION --- */
+
 .auth-wrapper {
     display: flex !important;
     align-items: center !important;
@@ -233,15 +235,11 @@ body {
     padding: 2rem 0;
 }
 
-.login-container {
-    background: #0f172a !important;
-}
-
 .auth-container-static {
     width: 100%;
     max-width: 420px; 
     margin: auto !important;
-    padding: 3rem;
+    padding: 2.5rem; /* Adjusted padding */
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
@@ -250,27 +248,29 @@ body {
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
+    align-items: center; /* Center children horizontally */
     text-align: center;
 }
 
-/* Force all form elements to use the same horizontal baseline */
 .auth-container-static form {
     width: 100%;
     padding: 0;
     margin: 0;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Reset horizontal drift for field containers */
 .auth-container-static .mb-4 {
     width: 100%;
     margin-left: 0 !important;
     margin-right: 0 !important;
+    text-align: left; /* Keep labels left-aligned */
 }
 
 .form-control-dark {
     display: block;
     width: 100% !important;
-    box-sizing: border-box !important;
+    box-sizing: border-box !important; /* Forces padding to stay inside the width */
     padding: 0.85rem 1.25rem;
     font-size: 0.9rem;
     color: #fff !important;
@@ -287,15 +287,18 @@ body {
     box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.2) !important;
 }
 
-/* Ensure label headers are full width */
 .d-flex.justify-content-between {
     width: 100%;
 }
 
 .btn-white-solid {
+    width: 100%;
+    padding: 0.85rem;
     background-color: #ffffff !important;
     color: #0f172a !important;
     border: none;
+    border-radius: 0.75rem;
+    font-weight: 600;
     transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
@@ -316,7 +319,7 @@ body {
 
 @media (max-width: 576px) {
     .auth-container-static {
-        margin: 1.5rem;
+        margin: 1rem;
         padding: 2rem;
     }
 }
@@ -327,6 +330,7 @@ ul.errorlist {
     margin: 0 0 1rem 0;
     font-size: 0.8rem;
     color: #ff4d4d;
+    text-align: left;
 }
 
 .form-text, .helptext {
@@ -337,9 +341,18 @@ ul.errorlist {
 }
 
 .btn-social {
+    width: 100%;
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     transition: all 0.2s ease;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     color: rgba(255, 255, 255, 0.8) !important;
+    border-radius: 0.75rem;
+    text-decoration: none;
 }
 
 .btn-social:hover {
