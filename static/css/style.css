@@ -18,8 +18,8 @@
 }
 
 html, body {
-    overflow-x: hidden !important; 
-    width: 100vw !important;      
+    overflow-x: hidden; 
+    width: 100%; /* FIX: Changed from 100vw to allow sidebar to occupy its own space */
     margin: 0;
     padding: 0;
     position: relative;
@@ -40,9 +40,11 @@ body {
     padding: 2.5rem; 
     min-height: 100vh;
     transition: all 0.3s ease;
-    width: calc(100vw - var(--sidebar-width)) !important;
-    max-width: calc(100vw - var(--sidebar-width)) !important;
+    /* FIX: Changed from 100vw calc to auto to prevent pushing sidebar */
+    width: auto !important; 
+    max-width: 100% !important;
     overflow-x: hidden;
+    min-width: 0; /* FIX: Critical for allowing flex children like tables to shrink */
 }
 
 .row {
@@ -176,10 +178,16 @@ body {
     box-shadow: 0 12px 40px rgba(31, 38, 135, 0.08);
 }
 
+/* FIX: Ensure the table is scrollable but restricted to the content area */
 .table-responsive {
     overflow-x: auto !important;
     width: 100%;
     -webkit-overflow-scrolling: touch;
+    display: block;
+}
+
+.task-table {
+    min-width: 900px; /* Ensures the table has enough room to be readable */
 }
 
 .table thead th {
@@ -201,7 +209,7 @@ body {
 
 .task-row:hover {
     background-color: #fcfcff !important;
-    transform: translateX(5px) !important; 
+    /* Removed transform: translateX(5px) to prevent layout shifting */
 }
 
 @media (max-width: 991.98px) {
@@ -210,8 +218,8 @@ body {
         margin-left: 0 !important; 
         padding: 1.2rem;
         padding-top: 90px;
-        width: 100vw !important;
-        max-width: 100vw !important;
+        width: 100% !important; /* Changed from 100vw */
+        max-width: 100% !important;
     }
     
     .glass-sidebar {
@@ -227,7 +235,7 @@ body {
     align-items: center !important;
     justify-content: center !important;
     min-height: 100vh;
-    width: 100vw !important;
+    width: 100% !important; /* Changed from 100vw */
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
     position: relative; 
     z-index: 2000;
@@ -239,7 +247,7 @@ body {
     width: 100%;
     max-width: 420px; 
     margin: auto !important;
-    padding: 2.5rem; /* Adjusted padding */
+    padding: 2.5rem; 
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
@@ -248,7 +256,7 @@ body {
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
-    align-items: center; /* Center children horizontally */
+    align-items: center; 
     text-align: center;
 }
 
@@ -264,13 +272,13 @@ body {
     width: 100%;
     margin-left: 0 !important;
     margin-right: 0 !important;
-    text-align: left; /* Keep labels left-aligned */
+    text-align: left; 
 }
 
 .form-control-dark {
     display: block;
     width: 100% !important;
-    box-sizing: border-box !important; /* Forces padding to stay inside the width */
+    box-sizing: border-box !important; 
     padding: 0.85rem 1.25rem;
     font-size: 0.9rem;
     color: #fff !important;

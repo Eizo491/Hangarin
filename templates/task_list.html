@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container-fluid py-2">
+<div class="dashboard-wrapper">
     
     {# Header Section: Actions & Search #}
     <div class="dashboard-header animate-view px-4 pt-4">
@@ -21,7 +21,7 @@
                     <input type="hidden" name="category" value="{{ request.GET.category|default:'' }}">
                     <input type="hidden" name="priority" value="{{ request.GET.priority|default:'' }}">
                     
-                    <select name="sort_by" class="form-select rounded-pill border shadow-sm px-4" onchange="this.form.submit()" style="width: auto; min-width: 160px;">
+                    <select name="sort_by" class="form-select rounded-pill border shadow-sm px-4" onchange="this.form.submit()" style="width: auto; min-width: 150px;">
                         <option value="-created_at" {% if current_sort == "-created_at" %}selected{% endif %}>Newest First</option>
                         <option value="created_at" {% if current_sort == "created_at" %}selected{% endif %}>Oldest First</option>
                         <option value="deadline" {% if current_sort == "deadline" %}selected{% endif %}>Deadline</option>
@@ -43,7 +43,7 @@
     {# Stats Cards Section #}
     <div class="dashboard-extras animate-view px-4">
         <div class="row g-3 mb-4">
-            <div class="col-md-3 col-sm-6">
+            <div class="col-xl-3 col-md-6">
                 <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-primary border-4">
                     <div class="d-flex align-items-center">
                         <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3 text-primary">
@@ -56,7 +56,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
+            <div class="col-xl-3 col-md-6">
                 <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-success border-4">
                     <div class="d-flex align-items-center">
                         <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3 text-success">
@@ -69,7 +69,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
+            <div class="col-xl-3 col-md-6">
                 <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-info border-4">
                     <div class="d-flex align-items-center">
                         <div class="rounded-circle bg-info bg-opacity-10 p-3 me-3 text-info">
@@ -82,7 +82,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
+            <div class="col-xl-3 col-md-6">
                 <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-warning border-4">
                     <div class="d-flex align-items-center">
                         <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3 text-warning">
@@ -117,11 +117,11 @@
         {% endif %}
     </div>
 
-    {# Tasks Table #}
-    <div class="tasks-section animate-view px-4 mb-4">
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+    {# Tasks Table Section #}
+    <div class="tasks-section animate-view px-4 mb-5">
+        <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover align-middle mb-0 task-table">
                     <thead class="bg-light">
                         <tr>
                             <th class="px-4 py-3 border-0 text-muted small text-uppercase fw-bold">Task Title</th>
@@ -159,10 +159,8 @@
                                 <span class="badge rounded-pill bg-light text-secondary border px-3 py-2">{{ task.category }}</span>
                             </td>
                             <td>
-                                {% if task.priority == 'Optional' %}
-                                    <span class="text-danger fw-bold small"><i class="fas fa-fire-alt me-1"></i> OPTIONAL</span>
-                                {% elif task.priority == 'Critical' %}
-                                    <span class="text-success fw-bold small"><i class="fas fa-arrow-down me-1"></i>CRITICAL</span>
+                                {% if task.priority == 'Critical' %}
+                                    <span class="text-danger fw-bold small"><i class="fas fa-fire-alt me-1"></i> CRITICAL</span>
                                 {% elif task.priority == 'High' %}
                                     <span class="text-warning-emphasis fw-bold small"><i class="fas fa-exclamation-circle me-1"></i> HIGH</span>
                                 {% elif task.priority == 'Medium' %}
@@ -177,7 +175,7 @@
                                 <i class="far fa-calendar-alt me-1"></i> {{ task.deadline|date:"M d, Y" }}
                             </td>
                             <td class="px-4 py-3 text-end">
-                                <div class="btn-group shadow-sm rounded-pill overflow-hidden border">
+                                <div class="btn-group shadow-sm rounded-pill border overflow-hidden">
                                     <a href="{% url 'task_update' task.pk %}" class="btn btn-sm btn-white" title="Edit">
                                         <i class="fas fa-pen text-primary"></i>
                                     </a>
@@ -193,7 +191,6 @@
                                 <div class="py-4">
                                     <i class="fas fa-clipboard-list fa-4x mb-3 text-light"></i>
                                     <h5 class="text-muted">No tasks matching your criteria</h5>
-                                    <p class="text-muted small">Try adjusting your filters or search terms.</p>
                                     <a href="{% url 'task_create' %}" class="btn btn-primary rounded-pill mt-2 px-4">Create New Task</a>
                                 </div>
                             </td>
@@ -204,6 +201,5 @@
             </div>
         </div>
     </div>
-
 </div>
 {% endblock %}
