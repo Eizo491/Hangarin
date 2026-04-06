@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container animate-view py-4">
-    <div class="card border-0 shadow-sm rounded-4 p-5 position-relative overflow-hidden">
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 position-relative overflow-hidden">
         <div class="position-absolute top-0 start-0 w-100" style="height: 6px; background: linear-gradient(90deg, #6610f2, #0d6efd);"></div>
 
         <div class="d-flex justify-content-between align-items-start mb-4">
@@ -22,13 +22,30 @@
         <div class="mb-5 text-start">
             <h5 class="fw-bold text-muted small text-uppercase mb-3">Description</h5>
             <div class="lead text-dark" style="font-size: 1.1rem; line-height: 1.6;">
-                {{ task.description|linebreaks }}
+                {% if task.description %}
+                    {{ task.description|linebreaks }}
+                {% else %}
+                    <span class="text-muted italic">No description provided.</span>
+                {% endif %}
             </div>
         </div>
 
-        {% if task.subtasks.all %}
         <div class="mb-5 text-start">
-            <h5 class="fw-bold text-muted small text-uppercase mb-3">Sub-Tasks</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-muted small text-uppercase m-0">Sub-Tasks</h5>
+                <button class="btn btn-sm btn-outline-primary rounded-pill border-0" data-bs-toggle="collapse" data-bs-target="#subtaskForm">
+                    <i class="fas fa-plus me-1"></i> Add Subtask
+                </button>
+            </div>
+
+            <div class="collapse mb-3" id="subtaskForm">
+                <form action="{% url 'add_subtask' task.id %}" method="POST" class="d-flex gap-2 p-3 bg-light rounded-4 border">
+                    {% csrf_token %}
+                    <input type="text" name="title" class="form-control border-0 bg-transparent shadow-none" placeholder="What needs to be done?" required>
+                    <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3">Add</button>
+                </form>
+            </div>
+
             <div class="list-group list-group-flush border rounded-4 overflow-hidden">
                 {% for sub in task.subtasks.all %}
                 <div class="list-group-item d-flex justify-content-between align-items-center p-3">
@@ -40,38 +57,56 @@
                         {{ sub.status }}
                     </small>
                 </div>
+                {% empty %}
+                <div class="list-group-item text-center py-4 text-muted">
+                    <i class="fas fa-tasks d-block mb-2 opacity-50"></i> No sub-tasks yet.
+                </div>
                 {% endfor %}
             </div>
         </div>
-        {% endif %}
 
-        {% if task.notes.all %}
         <div class="mb-5 text-start">
-            <h5 class="fw-bold text-muted small text-uppercase mb-3">Notes & Reminders</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-muted small text-uppercase m-0">Notes & Reminders</h5>
+                <button class="btn btn-sm btn-outline-warning rounded-pill border-0" data-bs-toggle="collapse" data-bs-target="#noteForm">
+                    <i class="fas fa-sticky-note me-1"></i> New Note
+                </button>
+            </div>
+
+            <div class="collapse mb-3" id="noteForm">
+                <form action="{% url 'add_note' task.id %}" method="POST" class="p-3 bg-light rounded-4 border">
+                    {% csrf_token %}
+                    <textarea name="content" class="form-control border-0 bg-transparent shadow-none mb-2" rows="2" placeholder="Write something down..." required></textarea>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-warning btn-sm rounded-pill px-3 text-dark fw-bold">Save Note</button>
+                    </div>
+                </form>
+            </div>
+
             {% for note in task.notes.all %}
-            <div class="p-3 bg-light rounded-4 mb-2 border-start border-primary border-4">
+            <div class="p-3 bg-light rounded-4 mb-2 border-start border-primary border-4 shadow-sm animate-view">
                 <p class="mb-1 text-dark">{{ note.content }}</p>
                 <small class="text-muted" style="font-size: 0.7rem;">Added on {{ note.created_at|date:"M d, Y" }}</small>
             </div>
+            {% empty %}
+            <div class="p-4 bg-light rounded-4 border border-dashed text-center text-muted">
+                <i class="far fa-sticky-note d-block mb-2 opacity-50"></i> Capture ideas or reminders here.
+            </div>
             {% endfor %}
         </div>
-        {% endif %}
         
         <div class="row g-4 mt-5 pt-4 border-top text-start">
             <div class="col-md-3">
                 <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.7rem;">Priority Level</small>
                 <span class="fw-bold {% if task.priority.name == 'Critical' or task.priority.name == 'High' %}text-danger{% else %}text-primary{% endif %}">
-                    <i class="fas fa-flag me-1"></i> {{ task.priority.name|default:"Medium" }}
+                    <i class="fas fa-flag me-1"></i> {{ task.priority.name|default:"Not Set" }}
                 </span>
             </div>
             
             <div class="col-md-4">
                 <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.7rem;">Target Deadline</small>
                 <span class="fw-bold text-dark d-flex align-items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-check me-2 text-primary" viewBox="0 0 16 16">
-                        <path d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
-                        <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
-                    </svg>
+                    <i class="fas fa-calendar-check me-2 text-primary"></i>
                     {{ task.deadline|date:"F d, Y"|default:"No deadline set" }}
                 </span>
                 {% if task.deadline %}
@@ -89,7 +124,7 @@
 
         <div class="mt-5 pt-4 d-flex flex-wrap gap-2 justify-content-start">
             <a href="{% url 'task_list' %}" class="btn btn-light rounded-pill px-4 border-0 shadow-sm">
-                <i class="fas fa-chevron-left me-2 small"></i>Back to Dashboard
+                <i class="fas fa-chevron-left me-2 small"></i>Back
             </a>
             <a href="{% url 'task_update' task.pk %}" class="btn btn-primary rounded-pill px-4 shadow">
                 <i class="fas fa-edit me-2 small"></i>Edit Task

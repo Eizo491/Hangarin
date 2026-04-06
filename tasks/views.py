@@ -8,9 +8,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.core.paginator import Paginator
-from django.db.models import Q
-from .models import Task, Category  # Added Category model here
+from django.db.models import Q, Count # Added Count for filtering
+from .models import Task, Category, Priority, SubTask, Note # Added SubTask and Note models
 from .forms import TaskForm
 from django.contrib.messages.views import SuccessMessageMixin
 
@@ -32,70 +31,77 @@ def signup(request):
     return render(request, 'account/signup.html', {'form': form})
 
 
-# --- TASK MANAGEMENT VIEWS (FUNCTION-BASED) ---
+# --- TASK MANAGEMENT VIEWS ---
 
 @login_required
 def task_list(request):
     search_query = request.GET.get('search', '')
     category_filter = request.GET.get('category', '')
-    priority_filter = request.GET.get('priority', '') # Added priority filter
+    priority_filter = request.GET.get('priority', '')
+    has_subtasks = request.GET.get('has_subtasks', '') # New filter
+    has_notes = request.GET.get('has_notes', '')       # New filter
     sort_by = request.GET.get('sort_by', '-created_at')
     
-    # Base query: user's tasks
-    tasks_query = Task.objects.select_related('category').filter(user=request.user)
+    # PERFORMANCE: Use select_related for FKs and annotate for filtering on counts
+    tasks_query = Task.objects.select_related('category', 'priority').annotate(
+        subtask_count=Count('subtasks'),
+        note_count=Count('notes')
+    ).filter(user=request.user)
     
-    # 1. Apply Category Filter
+    # --- FILTERING LOGIC ---
+    
     if category_filter:
         tasks_query = tasks_query.filter(category__name__iexact=category_filter)
 
-    # 2. Apply Priority Filter (New)
     if priority_filter:
-        tasks_query = tasks_query.filter(priority=priority_filter)
+        tasks_query = tasks_query.filter(priority__name__iexact=priority_filter)
 
-    # 3. Apply Search Filter
+    # Filter tasks that have at least one subtask
+    if has_subtasks == 'true':
+        tasks_query = tasks_query.filter(subtask_count__gt=0)
+
+    # Filter tasks that have at least one note
+    if has_notes == 'true':
+        tasks_query = tasks_query.filter(note_count__gt=0)
+
     if search_query:
         tasks_query = tasks_query.filter(
             Q(title__icontains=search_query) | 
             Q(description__icontains=search_query)
         )
     
-    # 4. Apply Dynamic Ordering
     try:
         tasks_query = tasks_query.order_by(sort_by)
     except Exception:
         tasks_query = tasks_query.order_by('-created_at')
         sort_by = '-created_at'
     
-    # 5. Pagination
-    paginator = Paginator(tasks_query, 6)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    # 6. Fetch all categories for the sidebar
-    # (Assuming Category model has a 'user' field, if not, remove the filter)
+    # --- STATS LOGIC ---
+    completed_count = tasks_query.filter(status__iexact='Completed').count()
+    in_progress_count = tasks_query.filter(status__iexact='In Progress').count()
+    pending_count = tasks_query.filter(status__iexact='Pending').count()
+    
     all_categories = Category.objects.all() 
 
     return render(request, 'task_list.html', {
-        'tasks': page_obj, 
-        'page_obj': page_obj, 
-        'is_paginated': page_obj.has_other_pages(),
+        'tasks': tasks_query,
+        'completed_count': completed_count,
+        'in_progress_count': in_progress_count,
+        'pending_count': pending_count,
+        'is_paginated': False, 
         'current_sort': sort_by,
-        'categories': all_categories, # Passed to base.html sidebar
+        'categories': all_categories,
+        'active_category': category_filter,
+        'active_priority': priority_filter,
     })
-
-# --- CATEGORY CREATE VIEW (New) ---
 
 @login_required
 def category_create(request):
     if request.method == "POST":
         name = request.POST.get('name')
         if name:
-            # Create the category. 
-            # If your Category model has a 'user' field, use: 
-            # Category.objects.get_or_create(name=name, user=request.user)
             Category.objects.get_or_create(name=name)
             messages.success(request, f"Category '{name}' added!")
-        return redirect('task_list')
     return redirect('task_list')
 
 @login_required
@@ -105,13 +111,38 @@ def export_tasks(request):
     writer = csv.writer(response)
     writer.writerow(['Title', 'Category', 'Priority', 'Status', 'Deadline'])
     
-    tasks = Task.objects.filter(user=request.user)
+    tasks = Task.objects.filter(user=request.user).select_related('category', 'priority')
     for t in tasks:
-        writer.writerow([t.title, t.category, t.priority, t.status, t.deadline])
+        cat_name = t.category.name if t.category else "None"
+        prio_name = t.priority.name if t.priority else "None"
+        writer.writerow([t.title, cat_name, prio_name, t.status, t.deadline])
     return response
 
 
-# --- TASK CRUD VIEWS (CLASS-BASED) ---
+# --- NEW: SUBTASK & NOTE QUICK-ADD VIEWS ---
+
+@login_required
+def add_subtask(request, task_id):
+    task = get_object_or_404(Task, id=task_id, user=request.user)
+    if request.method == "POST":
+        title = request.POST.get('title')
+        if title:
+            SubTask.objects.create(task=task, title=title) # Note: ensure field is 'task' or 'parent_task' in models.py
+            messages.success(request, "Subtask added!")
+    return redirect('task_detail', pk=task.id)
+
+@login_required
+def add_note(request, task_id):
+    task = get_object_or_404(Task, id=task_id, user=request.user)
+    if request.method == "POST":
+        content = request.POST.get('content')
+        if content:
+            Note.objects.create(task=task, content=content)
+            messages.success(request, "Note added!")
+    return redirect('task_detail', pk=task.id)
+
+
+# --- TASK CRUD VIEWS ---
 
 class TaskCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Task
@@ -124,18 +155,20 @@ class TaskCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         form.instance.user = self.request.user
         return super().form_valid(form)
 
-    # Add categories to context so they can be selected in the form
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
+        context['priorities'] = Priority.objects.all()
         return context
 
 class TaskDetailView(LoginRequiredMixin, DetailView):
     model = Task
     template_name = 'task_detail.html'
-    
+    context_object_name = 'task'
+
     def get_queryset(self):
-        return self.model.objects.filter(user=self.request.user)
+        # Optimized to pull related lists and foreign keys in one go
+        return self.model.objects.select_related('category', 'priority').prefetch_related('subtasks', 'notes').filter(user=self.request.user)
 
 class TaskUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Task

@@ -9,7 +9,7 @@ class BaseModel(models.Model):
         abstract = True
 
 class Category(BaseModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True) # Added unique to prevent duplicates
 
     class Meta:
         verbose_name = "Category"
@@ -19,7 +19,7 @@ class Category(BaseModel):
         return self.name
 
 class Priority(BaseModel):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
 
     class Meta:
         verbose_name = "Priority"
@@ -37,16 +37,18 @@ class Task(BaseModel):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')
     title = models.CharField(max_length=200) 
-    description = models.TextField() 
-    deadline = models.DateTimeField() 
+    description = models.TextField(blank=True, null=True)
+    deadline = models.DateTimeField(null=True, blank=True) 
+    
     status = models.CharField(
         max_length=50, 
         choices=STATUS_CHOICES, 
         default="Pending"
     )
     
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    priority = models.ForeignKey(Priority, on_delete=models.CASCADE)
+    # CHANGED: Use SET_NULL or PROTECT so deleting a category/priority doesn't delete the task
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='tasks')
+    priority = models.ForeignKey(Priority, on_delete=models.SET_NULL, null=True, related_name='tasks')
 
     def __str__(self):
         return self.title

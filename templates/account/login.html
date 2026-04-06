@@ -3,10 +3,11 @@
 {% load socialaccount %} 
 
 {% block content %}
-<main class="main-content main-content-full login-container">
-    <div class="auth-container-static">
+<div class="auth-wrapper d-flex align-items-center justify-content-center">
+    <div class="auth-container-static mx-auto">
+        
         <div class="text-center mb-5">
-            <h1 class="fw-bold text-white mb-2" style="letter-spacing: -1.5px; font-size: 2.5rem;">Hangarin</h1>
+            <h1 class="fw-bold text-white mb-2" style="letter-spacing: -1.5px; font-size: 2.8rem;">Hangarin</h1>
             <p class="text-white-50">Focus on what matters most.</p>
         </div>
 
@@ -17,56 +18,90 @@
             <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
             {% endif %}
             
-            <div class="mb-3 text-start">
-                <label class="form-label text-white-50 ultra-small fw-bold mb-2 d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">
-                    Username or Email
-                </label>
-                {% render_field form.login class="form-control-dark w-100" placeholder="Enter username or email" %}
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <label class="form-label text-white-50 ultra-small fw-bold mb-2 text-uppercase">
+                        Username or Email
+                    </label>
+                    <span></span> 
+                </div>
                 
-                {% if form.login.errors %}
-                <div class="text-danger small mt-1">{{ form.login.errors }}</div>
+                {% if form.login %}
+                    {% render_field form.login class="form-control-dark" placeholder="Enter username or email" %}
+                {% elif form.username %}
+                    {% render_field form.username class="form-control-dark" placeholder="Enter username or email" %}
+                {% else %}
+                    {% render_field form.visible_fields.0 class="form-control-dark" placeholder="Enter username or email" %}
+                {% endif %}
+                
+                {% if form.login.errors or form.username.errors %}
+                <div class="text-danger ultra-small mt-2 px-1">
+                    <i class="fas fa-circle-exclamation me-1"></i> 
+                    {% for error in form.login.errors %}{{ error }}{% endfor %}
+                    {% for error in form.username.errors %}{{ error }}{% endfor %}
+                </div>
                 {% endif %}
             </div>
 
-            <div class="mb-4 text-start">
-                <label class="form-label text-white-50 ultra-small fw-bold mb-2 d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">
-                    Password
-                </label>
-                {% render_field form.password class="form-control-dark w-100" placeholder="••••••••" %}
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <label class="form-label text-white-50 ultra-small fw-bold mb-2 text-uppercase">
+                        Password
+                    </label>
+                    <a href="{% url 'account_reset_password' %}" class="ultra-small text-white-50 text-decoration-none mb-2 hover-white">
+                        Forgot?
+                    </a>
+                </div>
+                {% render_field form.password class="form-control-dark" placeholder="••••••••" %}
                 
                 {% if form.password.errors %}
-                <div class="text-danger small mt-1">{{ form.password.errors }}</div>
+                <div class="text-danger ultra-small mt-2 px-1">
+                    <i class="fas fa-circle-exclamation me-1"></i> 
+                    {% for error in form.password.errors %}{{ error }}{% endfor %}
+                </div>
                 {% endif %}
             </div>
 
             {% if form.non_field_errors %}
-            <div class="alert alert-danger bg-danger text-white border-0 small mb-4 py-2">
-                {{ form.non_field_errors }}
+            <div class="alert alert-danger bg-danger bg-opacity-25 text-white border-0 small mb-4 py-2 rounded-3">
+                <i class="fas fa-shield-halved me-2"></i> {{ form.non_field_errors }}
             </div>
             {% endif %}
 
-            <button type="submit" class="btn btn-white-solid w-100 rounded-pill fw-bold py-3 mb-4 shadow-lg" style="letter-spacing: 1px;">
+            <button type="submit" class="btn btn-white-solid w-100 rounded-pill fw-bold py-3 mb-4 shadow-lg">
                 LOG IN TO DASHBOARD
             </button>
 
             <div class="text-center mb-4">
-                <p class="text-white-50 small mb-3">OR CONTINUE WITH</p>
-                <div class="d-grid gap-2">
-                    <a href="{% provider_login_url 'google' %}" class="btn btn-outline-light rounded-pill fw-bold py-2">
-                        <i class="fab fa-google me-2"></i> Google
-                    </a>
+                <div class="d-flex align-items-center mb-4">
+                    <hr class="flex-grow-1 border-white opacity-10">
+                    <span class="mx-3 text-white-50 ultra-small fw-bold">OR CONTINUE WITH</span>
+                    <hr class="flex-grow-1 border-white opacity-10">
+                </div>
+                
+                <div class="row g-2">
+                    <div class="col-6">
+                        <a href="{% provider_login_url 'google' %}" class="btn btn-outline-light w-100 rounded-pill fw-bold py-2 border-opacity-25 d-flex align-items-center justify-content-center">
+                            <i class="fab fa-google me-2"></i> Google
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{% provider_login_url 'github' %}" class="btn btn-outline-light w-100 rounded-pill fw-bold py-2 border-opacity-25 d-flex align-items-center justify-content-center">
+                            <i class="fab fa-github me-2"></i> GitHub
+                        </a>
+                    </div>
                 </div>
             </div>
 
             <div class="text-center">
                 <p class="text-white-50 small mb-0">
                     Don't have an account? 
-                    <a href="{% url 'account_signup' %}" class="text-white fw-bold text-decoration-none border-bottom border-white border-opacity-25 ms-1">
+                    <a href="{% url 'account_signup' %}" class="text-white fw-bold text-decoration-none border-bottom border-white border-opacity-25 ms-1 pb-1">
                         Create Account
                     </a>
                 </p>
             </div>
         </form>
     </div>
-</main>
+</div>
 {% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-wrapper d-flex align-items-center justify-content-center">
+    <div class="auth-container-static mx-auto">
+        <div class="text-center mb-5">
+            <h1 class="fw-bold text-white mb-2" style="letter-spacing: -1.5px; font-size: 2.8rem;">Hangarin</h1>
+            <p class="text-white-50 small">Focus on what matters most.</p>
+        </div>
+        
+        {% block entrance_content %}{% endblock %}
+    </div>
+</div>
+{% endblock %}

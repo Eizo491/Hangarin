@@ -17,7 +17,6 @@
                     {% csrf_token %} 
                     <div class="row g-4">
                         {% for field in form %}
-                            {# Description takes full width, others take half #}
                             <div class="{% if field.name == 'description' %}col-12{% else %}col-md-6{% endif %} text-start">
                                 <label class="form-label fw-bold ultra-small text-secondary px-2 text-uppercase" style="letter-spacing: 0.5px; font-size: 0.7rem;">
                                     {{ field.label }}
@@ -28,11 +27,10 @@
                                         {% render_field field class="form-control rounded-4 px-4 py-3 bg-light border-0" rows="4" placeholder="Describe the task details..." %}
                                     
                                     {% elif field.name == 'deadline' %}
-                                        {# Datetime-local matches your models.DateTimeField #}
-                                        {% render_field field class="form-control rounded-pill px-4 bg-light border-0" type="datetime-local" %}
+                                        {# FIXED: Changed type to 'date' to match your forms.py DateInput #}
+                                        {% render_field field class="form-control rounded-pill px-4 bg-light border-0" type="date" %}
                                     
                                     {% elif field.name == 'category' or field.name == 'priority' or field.name == 'status' %}
-                                        {# Using form-select for the ForeignKey dropdowns #}
                                         {% render_field field class="form-select rounded-pill px-4 bg-light border-0" %}
                                     
                                     {% else %}

@@ -4,6 +4,7 @@ from .models import Task, Category, Priority
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
+        # Ensure all fields you want to save are listed here
         fields = ['title', 'description', 'category', 'priority', 'status', 'deadline']
         widgets = {
             'title': forms.TextInput(attrs={
@@ -36,12 +37,31 @@ class TaskForm(forms.ModelForm):
         # Sort Categories alphabetically
         if 'category' in self.fields:
             self.fields['category'].queryset = Category.objects.all().order_by('name')
+            self.fields['category'].empty_label = "Select Category"
+            self.fields['category'].required = True # Force selection
         
-        # FIX: Changed 'level' to 'id' to resolve the FieldError
-        # This sorts priorities by the order they were created in the database
+        # Sort priorities by ID
         if 'priority' in self.fields:
             self.fields['priority'].queryset = Priority.objects.all().order_by('id')
+            self.fields['priority'].empty_label = "Select Priority"
+            self.fields['priority'].required = True # Force selection
 
-        # Ensures the empty labels look clean in the dropdowns
-        self.fields['category'].empty_label = "Select Category"
-        self.fields['priority'].empty_label = "Select Priority"
+        # Ensure deadline is required so it's not "lost"
+        if 'deadline' in self.fields:
+            self.fields['deadline'].required = True
+
+# Added LoginForm to support your login.html rendering
+class LoginForm(forms.Form):
+    login = forms.CharField(
+        label="Username or Email",
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Enter username or email',
+            'class': 'form-control-dark'
+        })
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'placeholder': '••••••••',
+            'class': 'form-control-dark'
+        })
+    )

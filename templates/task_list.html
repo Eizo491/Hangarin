@@ -1,135 +1,183 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="dashboard-header animate-view">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <h1 class="display-5 fw-bold m-0 text-dark">Hangarin Project</h1>
-        
-        <div class="d-flex gap-2">
-            <a href="{% url 'task_create' %}" class="btn btn-success rounded-pill px-4 shadow-sm d-flex align-items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="white" viewBox="0 0 16 16">
-                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                </svg>
-                <span>New Task</span>
-            </a>
+<div class="container-fluid g-0 overflow-hidden">
+    
+    <div class="dashboard-header animate-view px-4 pt-4">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div class="d-flex gap-2">
+                <a href="{% url 'task_create' %}" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center">
+                    <i class="fas fa-plus me-2"></i> New Task
+                </a>
+                <a href="{% url 'export_tasks' %}?search={{ request.GET.search }}&sort_by={{ current_sort }}" 
+                   class="btn btn-outline-primary rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center">
+                    <i class="fas fa-download me-2"></i> Export
+                </a>
+            </div>
+            
+            <div class="d-flex gap-2 flex-grow-1 flex-md-grow-0">
+                <form method="get" action="{% url 'task_list' %}" class="d-flex gap-2 w-100">
+                    <input type="hidden" name="category" value="{{ request.GET.category|default:'' }}">
+                    <input type="hidden" name="priority" value="{{ request.GET.priority|default:'' }}">
+                    
+                    <select name="sort_by" class="form-select rounded-pill border-0 shadow-sm px-4" onchange="this.form.submit()" style="width: auto; min-width: 150px;">
+                        <option value="-created_at" {% if current_sort == "-created_at" %}selected{% endif %}>Newest First</option>
+                        <option value="created_at" {% if current_sort == "created_at" %}selected{% endif %}>Oldest First</option>
+                        <option value="deadline" {% if current_sort == "deadline" %}selected{% endif %}>Deadline</option>
+                        <option value="-priority" {% if current_sort == "-priority" %}selected{% endif %}>High Priority</option>
+                    </select>
 
-            <a href="{% url 'export_tasks' %}?search={{ request.GET.search }}&sort_by={{ current_sort }}" 
-               class="btn btn-outline-primary rounded-pill px-4 shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download me-1" viewBox="0 0 16 16">
-                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-                </svg>
-                Export
-            </a>
+                    <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white">
+                        <input type="text" name="search" class="form-control border-0 px-4" 
+                               placeholder="Search tasks..." value="{{ request.GET.search|default:'' }}">
+                        <button type="submit" class="btn btn-primary px-3 border-0">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mt-3">
-        <p class="text-muted lead m-0">Manage your projects and track your progress.</p>
-        
-        <form method="get" action="{% url 'task_list' %}" class="d-flex gap-2 w-100 justify-content-end align-items-center">
-            <input type="hidden" name="category" value="{{ request.GET.category|default:'' }}">
-            
-            <select name="sort_by" class="form-select rounded-pill px-3 shadow-sm border-0 small" onchange="this.form.submit()" style="width: 160px; height: 45px; font-size: 0.85rem;">
-                <option value="-created_at" {% if current_sort == "-created_at" %}selected{% endif %}>Newest First</option>
-                <option value="created_at" {% if current_sort == "created_at" %}selected{% endif %}>Oldest First</option>
-                <option value="deadline" {% if current_sort == "deadline" %}selected{% endif %}>Deadline (Near)</option>
-                <option value="-priority" {% if current_sort == "-priority" %}selected{% endif %}>High Priority</option>
-            </select>
-
-            <div class="input-group shadow-sm rounded-pill bg-white" style="max-width: 350px;">
-                <input type="text" name="search" class="form-control border-0 rounded-start-pill px-4" 
-                       placeholder="Search tasks..." value="{{ request.GET.search|default:'' }}"
-                       style="height: 45px; box-shadow: none;">
-                
-                {% if request.GET.search %}
-                    <a href="{% url 'task_list' %}" class="btn bg-transparent border-0 text-muted d-flex align-items-center px-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
-                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
-                        </svg>
-                    </a>
-                {% endif %}
-
-                <button type="submit" class="btn btn-primary rounded-pill m-1 px-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 37px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="white" viewBox="0 0 16 16">
-                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                    </svg>
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<hr class="my-4 opacity-10">
-
-<div class="row g-4 animate-view" style="animation-delay: 0.2s;">
-    {% for task in tasks %}
-    <div class="col-md-6 col-lg-4">
-        <a href="{% url 'task_detail' task.pk %}" class="text-decoration-none text-dark h-100 d-block">
-            <div class="card h-100 shadow-sm border-0 rounded-4 task-card-hover">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="badge bg-primary-subtle text-primary border-0 px-2 py-1 small">
-                            <i class="fas fa-tag me-1 small"></i>{{ task.category.name|default:"General" }}
-                        </span>
-                        
-                        <span class="badge rounded-pill {% if task.status == 'Completed' %}bg-success-subtle text-success{% elif task.status == 'In Progress' %}bg-info-subtle text-info{% else %}bg-secondary-subtle text-secondary{% endif %}">
-                            {{ task.status }}
-                        </span>
-                    </div>
-
-                    <h4 class="card-title fw-bold mb-3">{{ task.title }}</h4>
-                    <p class="card-text text-muted mb-4">{{ task.description|truncatewords:15 }}</p>
-
-                    <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top">
-                        <small class="text-uppercase fw-bold {% if task.priority.name == 'Critical' %}text-danger{% elif task.priority.name == 'High' %}text-warning{% else %}text-primary{% endif %}" style="font-size: 0.65rem;">
-                            <i class="fas fa-exclamation-circle me-1"></i>{{ task.priority.name|default:"Medium" }}
-                        </small>
-                        
-                        <small class="text-muted" style="font-size: 0.75rem;">
-                            <i class="far fa-calendar-alt me-1"></i>{{ task.deadline|date:"M d" }}
-                        </small>
+    <div class="dashboard-extras animate-view px-4">
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-primary text-white h-100">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-white bg-opacity-25 p-2 me-3">
+                            <i class="fas fa-list-check"></i>
+                        </div>
+                        <div>
+                            <p class="small mb-0 opacity-75">Total Tasks</p>
+                            <h4 class="fw-bold mb-0">{{ tasks.count }}</h4>
+                        </div>
                     </div>
                 </div>
             </div>
-        </a>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-success text-white h-100">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-white bg-opacity-25 p-2 me-3">
+                            <i class="fas fa-check-double"></i>
+                        </div>
+                        <div>
+                            <p class="small mb-0 opacity-75">Completed</p>
+                            <h4 class="fw-bold mb-0">{{ completed_count }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-info text-white h-100">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-white bg-opacity-25 p-2 me-3">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                        <div>
+                            <p class="small mb-0 opacity-75">In Progress</p>
+                            <h4 class="fw-bold mb-0">{{ in_progress_count }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-warning text-white h-100">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-white bg-opacity-25 p-2 me-3">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <div>
+                            <p class="small mb-0 opacity-75">Pending</p>
+                            <h4 class="fw-bold mb-0">{{ pending_count }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if request.GET.category or request.GET.priority or request.GET.search %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-light d-flex flex-row align-items-center justify-content-between">
+                    <div class="text-truncate me-2">
+                        <span class="small fw-bold text-muted text-uppercase me-2">Active Filters:</span>
+                        {% if request.GET.category %}<span class="badge bg-primary rounded-pill me-1">{{ request.GET.category }}</span>{% endif %}
+                        {% if request.GET.priority %}<span class="badge bg-danger rounded-pill me-1">{{ request.GET.priority }}</span>{% endif %}
+                        {% if request.GET.search %}<span class="badge bg-dark rounded-pill me-1">"{{ request.GET.search }}"</span>{% endif %}
+                    </div>
+                    <a href="{% url 'task_list' %}" class="btn btn-sm btn-outline-secondary rounded-pill border-0 flex-shrink-0">
+                        <i class="fas fa-times me-1"></i> Clear
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
-    {% empty %}
-    <div class="col-12 text-center py-5">
-        <div class="alert alert-light border-0 shadow-sm rounded-4 py-5">
-            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">No tasks found. Start by creating one!</h5>
+
+    <div class="tasks-section animate-view px-4 mb-4">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="table-responsive w-100">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="px-4 py-3 border-0 text-nowrap">Task Name</th>
+                            <th class="py-3 border-0 text-nowrap">Status</th>
+                            <th class="py-3 border-0 text-nowrap">Category</th>
+                            <th class="py-3 border-0 text-nowrap">Priority</th>
+                            <th class="py-3 border-0 text-nowrap">Deadline</th>
+                            <th class="px-4 py-3 border-0 text-end text-nowrap">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in tasks %}
+                        <tr class="task-row">
+                            <td class="px-4 py-3 fw-bold text-nowrap">
+                                <a href="{% url 'task_detail' task.pk %}" class="text-decoration-none text-dark">
+                                    {{ task.title }}
+                                </a>
+                            </td>
+                            <td>
+                                {% if task.status == 'Completed' %}
+                                    <span class="badge rounded-pill bg-success-subtle text-success border border-success px-3">Completed</span>
+                                {% elif task.status == 'In Progress' %}
+                                    <span class="badge rounded-pill bg-info-subtle text-info border border-info px-3">In Progress</span>
+                                {% else %}
+                                    <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning px-3">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="badge rounded-pill bg-light text-dark border">{{ task.category }}</span></td>
+                            <td>
+                                {% if task.priority == 'Critical' %}
+                                    <span class="text-danger fw-bold text-nowrap"><i class="fas fa-fire me-1"></i> Critical</span>
+                                {% elif task.priority == 'High' %}
+                                    <span class="text-warning fw-bold text-nowrap"><i class="fas fa-circle me-1"></i> High</span>
+                                {% else %}
+                                    <span class="text-muted text-nowrap">{{ task.priority }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted small text-nowrap">{{ task.deadline|date:"M d, Y" }}</td>
+                            <td class="px-4 py-3 text-end text-nowrap">
+                                <a href="{% url 'task_update' task.pk %}" class="btn btn-sm btn-light rounded-circle shadow-sm me-1">
+                                    <i class="fas fa-edit text-primary"></i>
+                                </a>
+                                <a href="{% url 'task_delete' task.pk %}" class="btn btn-sm btn-light rounded-circle shadow-sm">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-clipboard-list fa-3x mb-3 opacity-25"></i>
+                                <p>No tasks found. Create your first task!</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-    {% endfor %}
+
 </div>
-
-{% if is_paginated %}
-<nav class="mt-5 pb-5">
-    <ul class="pagination justify-content-center gap-2">
-        {% if page_obj.has_previous %}
-            <li class="page-item">
-                <a class="page-link rounded-pill px-4 border-0 shadow-sm" 
-                   href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if current_sort %}&sort_by={{ current_sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
-                    Prev
-                </a>
-            </li>
-        {% endif %}
-        
-        <li class="page-item disabled">
-            <span class="page-link rounded-pill px-4 border-0 bg-white text-dark fw-bold shadow-sm">
-                {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
-            </span>
-        </li>
-
-        {% if page_obj.has_next %}
-            <li class="page-item">
-                <a class="page-link rounded-pill px-4 border-0 shadow-sm" 
-                   href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if current_sort %}&sort_by={{ current_sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
-                    Next
-                </a>
-            </li>
-        {% endif %}
-    </ul>
-</nav>
-{% endif %}
 {% endblock %}
