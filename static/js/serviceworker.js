@@ -1,25 +1,26 @@
-var staticCacheName = "hangarin-v2"; // Incremented version to force update
+var staticCacheName = "hangarin-v5"; // Bump to v5 to force a fresh start
 var filesToCache = [
     '/', 
     '/static/img/icon-192.png', 
     '/static/img/icon-512.png',
-    // Only include these if you are 100% sure the paths are correct
-    // '/static/css/bootstrap.min.css', 
 ];
 
 // Cache assets on install
 self.addEventListener("install", function (e) {
-    self.skipWaiting(); // Forces the waiting service worker to become the active one
+    self.skipWaiting(); 
     e.waitUntil(
         caches.open(staticCacheName).then(function (cache) {
-            return cache.addAll(filesToCache);
-        }).catch(function(error) {
-            console.error('Service Worker: Failed to cache resources:', error);
+            // We use a map to try caching files individually so one failure doesn't kill the worker
+            return Promise.all(
+                filesToCache.map(function(url) {
+                    return cache.add(url).catch(err => console.warn("Could not cache:", url));
+                })
+            );
         })
     );
 });
 
-// Remove old caches when a new version is activated
+// Remove old caches
 self.addEventListener("activate", function (e) {
     e.waitUntil(
         caches.keys().then(function (cacheNames) {
@@ -34,13 +35,19 @@ self.addEventListener("activate", function (e) {
     );
 });
 
-// Serve cached content when offline
+// Serve cached content - FIXED LOGIC
 self.addEventListener("fetch", function (event) {
+    // Skip cross-origin requests (like Google Fonts or APIs) to avoid errors
+    if (!event.request.url.startsWith(self.location.origin)) return;
+
     event.respondWith(
         caches.match(event.request).then(function (response) {
-            // Return cached file, or try to fetch from network
-            return response || fetch(event.request).catch(function() {
-                // If both fail (offline), you could return an offline page here
+            // 1. If it's in cache, return it
+            if (response) return response;
+
+            // 2. If not, try the network
+            return fetch(event.request).catch(function() {
+                // 3. Only if BOTH fail, try to return the cached home page as a fallback
                 return caches.match('/');
             });
         })
