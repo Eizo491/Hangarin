@@ -10,9 +10,12 @@ admin.site.site_header = "Hangarin Admin"
 urlpatterns = [
     path('admin/', admin.site.urls),
     
+    # PWA Routes: Moved to root ('') so manifest.json is found at /manifest.json
+    path('', include('pwa.urls')), 
+    
     # Dashboard & General
     path('', task_views.task_list, name='task_list'),
-    path('analytics/', task_views.dashboard_analytics, name='analytics'), # NEW: Analytics Route
+    path('analytics/', task_views.dashboard_analytics, name='analytics'),
     path('export/', task_views.export_tasks, name='export_tasks'),
     path('category/add/', task_views.category_create, name='category_create'),
     
@@ -33,6 +36,7 @@ urlpatterns = [
     path('signup/', task_views.signup, name='signup'),
 ]
 
+# Static and Media file serving during development
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

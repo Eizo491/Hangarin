@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     
     'tasks.apps.TasksConfig',
     'widget_tweaks',
+    'pwa',
     
     'allauth',
     'allauth.account',
@@ -147,3 +148,22 @@ JAZZMIN_UI_TWEAKS = {
     "navbar_fixed": True,
     "sidebar_fixed": True,
 }
+PWA_APP_NAME = 'Hangarin'
+PWA_APP_DESCRIPTION = "Visualizing your productivity and task distribution."
+PWA_APP_THEME_COLOR = '#6f42c1'  # Using your purple brand color
+PWA_APP_BACKGROUND_COLOR = '#FFFFFF'
+PWA_APP_DISPLAY = 'standalone'
+PWA_APP_SCOPE = '/'
+PWA_APP_ORIENTATION = 'portrait'
+PWA_APP_START_URL = '/'
+PWA_APP_STATUS_BAR_COLOR = 'default'
+PWA_APP_DIR = 'ltr'
+
+# Path to your service worker file
+PWA_SERVICE_WORKER_PATH = str(BASE_DIR / 'static' / 'js' / 'serviceworker.js')
+
+# Define your icons (ensure these exist in your static/img folder)
+PWA_APP_ICONS = [
+    {'src': '/static/img/icon-192.png', 'sizes': '192x192'},
+    {'src': '/static/img/icon-512.png', 'sizes': '512x512'}
+]
