@@ -1,4 +1,8 @@
 import csv
+import json  # Added for Chart.js data
+from datetime import timedelta
+from django.utils import timezone
+from django.db.models.functions import TruncDay
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
@@ -8,8 +12,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.db.models import Q, Count # Added Count for filtering
-from .models import Task, Category, Priority, SubTask, Note # Added SubTask and Note models
+from django.db.models import Q, Count
+from .models import Task, Category, Priority, SubTask, Note
 from .forms import TaskForm
 from django.contrib.messages.views import SuccessMessageMixin
 
@@ -38,17 +42,14 @@ def task_list(request):
     search_query = request.GET.get('search', '')
     category_filter = request.GET.get('category', '')
     priority_filter = request.GET.get('priority', '')
-    has_subtasks = request.GET.get('has_subtasks', '') # New filter
-    has_notes = request.GET.get('has_notes', '')       # New filter
+    has_subtasks = request.GET.get('has_subtasks', '') 
+    has_notes = request.GET.get('has_notes', '')      
     sort_by = request.GET.get('sort_by', '-created_at')
     
-    # PERFORMANCE: Use select_related for FKs and annotate for filtering on counts
     tasks_query = Task.objects.select_related('category', 'priority').annotate(
         subtask_count=Count('subtasks'),
         note_count=Count('notes')
     ).filter(user=request.user)
-    
-    # --- FILTERING LOGIC ---
     
     if category_filter:
         tasks_query = tasks_query.filter(category__name__iexact=category_filter)
@@ -56,11 +57,9 @@ def task_list(request):
     if priority_filter:
         tasks_query = tasks_query.filter(priority__name__iexact=priority_filter)
 
-    # Filter tasks that have at least one subtask
     if has_subtasks == 'true':
         tasks_query = tasks_query.filter(subtask_count__gt=0)
 
-    # Filter tasks that have at least one note
     if has_notes == 'true':
         tasks_query = tasks_query.filter(note_count__gt=0)
 
@@ -76,7 +75,6 @@ def task_list(request):
         tasks_query = tasks_query.order_by('-created_at')
         sort_by = '-created_at'
     
-    # --- STATS LOGIC ---
     completed_count = tasks_query.filter(status__iexact='Completed').count()
     in_progress_count = tasks_query.filter(status__iexact='In Progress').count()
     pending_count = tasks_query.filter(status__iexact='Pending').count()
@@ -119,7 +117,7 @@ def export_tasks(request):
     return response
 
 
-# --- NEW: SUBTASK & NOTE QUICK-ADD VIEWS ---
+# --- SUBTASK & NOTE QUICK-ADD VIEWS ---
 
 @login_required
 def add_subtask(request, task_id):
@@ -127,7 +125,7 @@ def add_subtask(request, task_id):
     if request.method == "POST":
         title = request.POST.get('title')
         if title:
-            SubTask.objects.create(task=task, title=title) # Note: ensure field is 'task' or 'parent_task' in models.py
+            SubTask.objects.create(parent_task=task, title=title) 
             messages.success(request, "Subtask added!")
     return redirect('task_detail', pk=task.id)
 
@@ -167,7 +165,6 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'task'
 
     def get_queryset(self):
-        # Optimized to pull related lists and foreign keys in one go
         return self.model.objects.select_related('category', 'priority').prefetch_related('subtasks', 'notes').filter(user=self.request.user)
 
 class TaskUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
@@ -191,3 +188,56 @@ class TaskDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_queryset(self):
         return self.model.objects.filter(user=self.request.user)
+
+
+@login_required
+def dashboard_analytics(request):
+    user_tasks = Task.objects.filter(user=request.user)
+    
+    # 1. Stat Card Calculations
+    total_tasks_count = user_tasks.count()
+    
+    # This specifically counts tasks completed TODAY
+    today = timezone.now().date()
+    completed_today_count = user_tasks.filter(
+        status__iexact='Completed', 
+        completed_at__date=today
+    ).count()
+
+    # ADDED: This counts ALL completed tasks regardless of date
+    total_completed_count = user_tasks.filter(status__iexact='Completed').count()
+
+    critical_count = user_tasks.filter(priority__name__iexact='Critical').count()
+
+    # Fixed: Use values lookup to get distinct count of categories used by this user
+    unique_categories_count = user_tasks.exclude(category__isnull=True).values('category').distinct().count()
+    
+    # 2. Chart Aggregations
+    category_data = user_tasks.values('category__name').annotate(count=Count('id'))
+    priority_data = user_tasks.values('priority__name').annotate(count=Count('id'))
+    
+    last_week = timezone.now() - timedelta(days=7)
+    trend_qs = (
+        user_tasks.filter(status__iexact='Completed', completed_at__gte=last_week)
+        .annotate(day=TruncDay('completed_at'))
+        .values('day')
+        .annotate(count=Count('id'))
+        .order_by('day')
+    )
+
+    context = {
+        'total_tasks_count': total_tasks_count,
+        'completed_today_count': completed_today_count,
+        'total_completed_count': total_completed_count, # Pass this to template
+        'critical_count': critical_count,
+        'unique_categories_count': unique_categories_count,
+
+        'cat_labels': json.dumps([item['category__name'] or 'Uncategorized' for item in category_data]),
+        'cat_counts': json.dumps([item['count'] for item in category_data]),
+        'prio_labels': json.dumps([item['priority__name'] or 'None' for item in priority_data]),
+        'prio_counts': json.dumps([item['count'] for item in priority_data]),
+        'trend_labels': json.dumps([item['day'].strftime('%a, %b %d') for item in trend_qs]),
+        'trend_counts': json.dumps([item['count'] for item in trend_qs]),
+    }
+    
+    return render(request, 'analytics.html', context)

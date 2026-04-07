@@ -12,6 +12,7 @@ urlpatterns = [
     
     # Dashboard & General
     path('', task_views.task_list, name='task_list'),
+    path('analytics/', task_views.dashboard_analytics, name='analytics'), # NEW: Analytics Route
     path('export/', task_views.export_tasks, name='export_tasks'),
     path('category/add/', task_views.category_create, name='category_create'),
     
@@ -22,7 +23,6 @@ urlpatterns = [
     path('task/<int:pk>/delete/', task_views.TaskDeleteView.as_view(), name='task_delete'),
     
     # --- NEW: SubTask & Note Endpoints ---
-    # These handle the "Quick Add" forms on the Task Detail page
     path('task/<int:task_id>/add-subtask/', task_views.add_subtask, name='add_subtask'),
     path('task/<int:task_id>/add-note/', task_views.add_note, name='add_note'),
     

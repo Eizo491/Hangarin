@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -9,7 +10,7 @@ class BaseModel(models.Model):
         abstract = True
 
 class Category(BaseModel):
-    name = models.CharField(max_length=100, unique=True) # Added unique to prevent duplicates
+    name = models.CharField(max_length=100, unique=True)
 
     class Meta:
         verbose_name = "Category"
@@ -40,15 +41,37 @@ class Task(BaseModel):
     description = models.TextField(blank=True, null=True)
     deadline = models.DateTimeField(null=True, blank=True) 
     
+    # NEW FIELD: Specifically for analytics to track completion trends
+    completed_at = models.DateTimeField(null=True, blank=True) 
+
     status = models.CharField(
         max_length=50, 
         choices=STATUS_CHOICES, 
         default="Pending"
     )
     
-    # CHANGED: Use SET_NULL or PROTECT so deleting a category/priority doesn't delete the task
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='tasks')
     priority = models.ForeignKey(Priority, on_delete=models.SET_NULL, null=True, related_name='tasks')
+
+    @property
+    def is_completed(self):
+        return self.status == "Completed"
+
+    def save(self, *args, **kwargs):
+        """
+        Custom save method to automatically handle the completed_at timestamp.
+        1. If status is 'Completed' and date is missing, set it to now.
+        2. If status is moved away from 'Completed', clear the date.
+        """
+        if self.status == "Completed":
+            # Only set timestamp if it wasn't already set (prevents overwriting on every edit)
+            if not self.completed_at:
+                self.completed_at = timezone.now()
+        else:
+            # If a task is moved back to 'In Progress' or 'Pending', clear the completion date
+            self.completed_at = None
+            
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
