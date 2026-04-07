@@ -308,8 +308,6 @@ body {
     }
 }
 
-
-
 ul.errorlist {
     list-style: none;
     padding: 0;
@@ -337,4 +335,24 @@ ul.errorlist {
     border-color: rgba(255, 255, 255, 0.3) !important;
     color: #fff !important;
     transform: translateY(-1px);
+}
+
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+input, textarea, [contenteditable="true"] {
+    -webkit-user-select: auto;
+    user-select: auto;
+}
+
+@media (display-mode: standalone) {
+    .fixed-top {
+        padding-top: env(safe-area-inset-top);
+    }
 }
