@@ -1,6 +1,10 @@
-var staticCacheName = "hangarin-v5"; // Bump to v5 to force a fresh start
+var staticCacheName = "hangarin-v6"; // Bumped to v6 to include offline handler scripts
 var filesToCache = [
     '/', 
+    '/static/css/style.css',
+    '/static/js/main.js',
+    '/static/js/offline_handler.js',
+    '/task/create/', // Ensure your "Add Task" URL is cached so the form opens offline
     '/static/img/icon-192.png', 
     '/static/img/icon-512.png',
 ];
@@ -35,19 +39,18 @@ self.addEventListener("activate", function (e) {
     );
 });
 
-// Serve cached content - FIXED LOGIC
 self.addEventListener("fetch", function (event) {
-    // Skip cross-origin requests (like Google Fonts or APIs) to avoid errors
     if (!event.request.url.startsWith(self.location.origin)) return;
+
+    if (event.request.method !== 'GET') return;
 
     event.respondWith(
         caches.match(event.request).then(function (response) {
-            // 1. If it's in cache, return it
             if (response) return response;
 
-            // 2. If not, try the network
-            return fetch(event.request).catch(function() {
-                // 3. Only if BOTH fail, try to return the cached home page as a fallback
+            return fetch(event.request).then(function(networkResponse) {
+                return networkResponse;
+            }).catch(function() {
                 return caches.match('/');
             });
         })

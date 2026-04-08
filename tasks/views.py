@@ -1,9 +1,9 @@
 import csv
-import json  # Added for Chart.js data
+import json  # Used for Chart.js data and Offline Sync
 from datetime import timedelta
 from django.utils import timezone
 from django.db.models.functions import TruncDay
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse  # Added JsonResponse for sync
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
@@ -153,6 +153,38 @@ class TaskCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         form.instance.user = self.request.user
         return super().form_valid(form)
 
+    # NEW: Handle Offline Sync JSON requests within the same view
+    def post(self, request, *args, **kwargs):
+        if request.content_type == 'application/json':
+            try:
+                data = json.loads(request.body)
+                
+                # Retrieve related objects safely
+                category_obj = None
+                if data.get('category'):
+                    category_obj = Category.objects.filter(name__iexact=data.get('category')).first()
+                
+                priority_obj = None
+                if data.get('priority'):
+                    priority_obj = Priority.objects.filter(name__iexact=data.get('priority')).first()
+
+                # Save the queued task from the phone/browser
+                Task.objects.create(
+                    user=request.user,
+                    title=data.get('title'),
+                    description=data.get('description', ''),
+                    category=category_obj,
+                    priority=priority_obj,
+                    status=data.get('status', 'Pending'),
+                    deadline=data.get('deadline') if data.get('deadline') else None
+                )
+                return JsonResponse({'status': 'success', 'message': 'Offline task synced'})
+            except Exception as e:
+                return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+        
+        # If standard form (Online), use default CreateView behavior
+        return super().post(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
@@ -197,19 +229,16 @@ def dashboard_analytics(request):
     # 1. Stat Card Calculations
     total_tasks_count = user_tasks.count()
     
-    # This specifically counts tasks completed TODAY
     today = timezone.now().date()
     completed_today_count = user_tasks.filter(
         status__iexact='Completed', 
         completed_at__date=today
     ).count()
 
-    # ADDED: This counts ALL completed tasks regardless of date
     total_completed_count = user_tasks.filter(status__iexact='Completed').count()
 
     critical_count = user_tasks.filter(priority__name__iexact='Critical').count()
 
-    # Fixed: Use values lookup to get distinct count of categories used by this user
     unique_categories_count = user_tasks.exclude(category__isnull=True).values('category').distinct().count()
     
     # 2. Chart Aggregations
@@ -228,7 +257,7 @@ def dashboard_analytics(request):
     context = {
         'total_tasks_count': total_tasks_count,
         'completed_today_count': completed_today_count,
-        'total_completed_count': total_completed_count, # Pass this to template
+        'total_completed_count': total_completed_count,
         'critical_count': critical_count,
         'unique_categories_count': unique_categories_count,
 

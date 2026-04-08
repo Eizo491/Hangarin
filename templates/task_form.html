@@ -13,7 +13,7 @@
                     <p class="text-muted small">Fill in the details below to organize your workflow.</p>
                 </div>
 
-                <form method="post" novalidate>
+                <form method="post" id="taskForm" novalidate>
                     {% csrf_token %} 
                     <div class="row g-4">
                         {% for field in form %}
@@ -24,17 +24,20 @@
                                 
                                 <div class="input-group-custom">
                                     {% if field.name == 'description' %}
-                                        {% render_field field class="form-control rounded-4 px-4 py-3 bg-light border-0" rows="4" placeholder="Describe the task details..." %}
+                                        {# ADDED id="id_description" #}
+                                        {% render_field field id="id_description" class="form-control rounded-4 px-4 py-3 bg-light border-0" rows="4" placeholder="Describe the task details..." %}
                                     
                                     {% elif field.name == 'deadline' %}
-                                        {# FIXED: Changed type to 'date' to match your forms.py DateInput #}
-                                        {% render_field field class="form-control rounded-pill px-4 bg-light border-0" type="date" %}
+                                        {# ADDED id="id_deadline" #}
+                                        {% render_field field id="id_deadline" class="form-control rounded-pill px-4 bg-light border-0" type="date" %}
                                     
                                     {% elif field.name == 'category' or field.name == 'priority' or field.name == 'status' %}
-                                        {% render_field field class="form-select rounded-pill px-4 bg-light border-0" %}
+                                        {# ADDED dynamic IDs like id_category, id_priority, etc. #}
+                                        {% render_field field id="id_"|add:field.name class="form-select rounded-pill px-4 bg-light border-0" %}
                                     
                                     {% else %}
-                                        {% render_field field class="form-control rounded-pill px-4 bg-light border-0" placeholder=field.label %}
+                                        {# ADDED id="id_title" for the title field #}
+                                        {% render_field field id="id_"|add:field.name class="form-control rounded-pill px-4 bg-light border-0" placeholder=field.label %}
                                     {% endif %}
                                 </div>
 
@@ -60,4 +63,35 @@
         </div>
     </div>
 </div>
-{% endblock %}
+
+{# Script block to ensure the offline handler connects to this specific form #}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const taskForm = document.getElementById('taskForm');
+        
+        if (taskForm) {
+            taskForm.addEventListener('submit', function(e) {
+                if (!navigator.onLine) {
+                    e.preventDefault();
+                    
+                    // Capture all necessary fields for the offline queue
+                    const taskData = {
+                        title: document.getElementById('id_title')?.value,
+                        description: document.getElementById('id_description')?.value,
+                        category: document.getElementById('id_category')?.value,
+                        priority: document.getElementById('id_priority')?.value,
+                        status: document.getElementById('id_status')?.value,
+                        deadline: document.getElementById('id_deadline')?.value
+                    };
+
+                    // Call the function from your offline_handler.js
+                    if (typeof saveTaskOffline === "function") {
+                        saveTaskOffline(taskData);
+                        taskForm.reset();
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}  

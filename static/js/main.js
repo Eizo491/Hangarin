@@ -107,10 +107,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- 4. GLOBAL FORM OVERLAY ---
+    // --- 4. GLOBAL FORM OVERLAY & OFFLINE INTERCEPTION ---
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {
-        form.addEventListener('submit', () => {
+        form.addEventListener('submit', (e) => {
+            // Check if we are on the Task Form and if we are Offline
+            if (form.id === 'taskForm' && !navigator.onLine) {
+                e.preventDefault(); // Stop page refresh
+                
+                // Get data from your widget_tweak fields
+                const taskData = {
+                    title: document.getElementById('id_title')?.value,
+                    description: document.getElementById('id_description')?.value,
+                    category: document.getElementById('id_category')?.value,
+                    priority: document.getElementById('id_priority')?.value,
+                    status: document.getElementById('id_status')?.value,
+                    deadline: document.getElementById('id_deadline')?.value
+                };
+
+                // Save to local queue using handler.js function
+                if (typeof saveTaskOffline === "function") {
+                    saveTaskOffline(taskData);
+                    form.reset();
+                }
+                return; // Don't show the loading overlay if we're offline
+            }
+
+            // Normal Online Overlay Logic
             const overlay = document.createElement('div');
             Object.assign(overlay.style, {
                 position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
