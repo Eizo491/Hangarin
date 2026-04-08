@@ -41,18 +41,28 @@ self.addEventListener("activate", function (e) {
 
 self.addEventListener("fetch", function (event) {
     if (!event.request.url.startsWith(self.location.origin)) return;
-
     if (event.request.method !== 'GET') return;
+
+    if (event.request.url.pathname === '/' || event.request.url.includes('/task/')) {
+        event.respondWith(
+            fetch(event.request)
+                .then(function (response) { 
+                        return caches.open(staticCacheName).then(function (cache) {
+                        cache.put(event.request, response.clone());
+                        return response;
+                    });
+                })
+                .catch(function () {
+              
+                    return caches.match(event.request);
+                })
+        );
+        return;
+    }
 
     event.respondWith(
         caches.match(event.request).then(function (response) {
-            if (response) return response;
-
-            return fetch(event.request).then(function(networkResponse) {
-                return networkResponse;
-            }).catch(function() {
-                return caches.match('/');
-            });
+            return response || fetch(event.request);
         })
     );
 });
